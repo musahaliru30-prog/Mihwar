@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mihwar — Daily Routine Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* =====================================================
+           DESIGN TOKENS
+           ===================================================== */
+        :root {
+            --bg:            #f0ead8;
+            --surface:       #faf6ec;
+            --surface-2:     #e8e1cc;
+            --surface-3:     #d8d0b8;
+            --primary:       #1a3a2a;
+            --primary-mid:   #2d6a4f;
+            --primary-light: #52b788;
+            --gold:          #b8860b;
+            --gold-bright:   #d4a017;
+            --gold-pale:     #f0d98a;
+            --text:          #1c1814;
+            --text-mid:      #3d3928;
+            --text-muted:    #7a7260;
+            --border:        #cfc8b0;
+            --border-light:  #e4ddc8;
+            --success:       #40916c;
+            --error:         #9b2335;
+            --white:         #fff;
+
+            --font-display:  'DM Serif Display', Georgia, serif;
+            --font-serif:    'Playfair Display', Georgia, serif;
+            --font-body:     'Lato', system-ui, sans-serif;
+
+            --r-sm:  6px;
+            --r-md:  12px;
+            --r-lg:  20px;
+            --r-xl:  28px;
+
+            --shadow-sm: 0 1px 4px rgba(26,58,42,0.06);
+            --shadow:    0 3px 14px rgba(26,58,42,0.10);
+            --shadow-lg: 0 8px 32px rgba(26,58,42,0.16);
+            --shadow-xl: 0 20px 60px rgba(26,58,42,0.22);
+        }
+
+        /* =====================================================
+           RESET & BASE
+           ===================================================== */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+            font-size: 15px;
+            background-image:
+                radial-gradient(ellipse at 10% 0%, rgba(212,160,23,0.07) 0%, transparent 55%),
+                radial-gradient(ellipse at 90% 100%, rgba(26,58,42,0.06) 0%, transparent 55%);
+        }
+
+        /* =====================================================
+           HEADER
+           ===================================================== */
+        .header {
+            background: var(--primary);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-lg);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M30 4 L56 30 L30 56 L4 30 Z' fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1'/%3E%3Cpath d='M30 14 L46 30 L30 46 L14 30 Z' fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1'/%3E%3Ccircle cx='30' cy='30' r='8' fill='none' stroke='%23ffffff' stroke-opacity='0.04' stroke-width='1'/%3E%3C/svg%3E");
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 36px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .brand { display: flex; align-items: baseline; gap: 11px; }
+        .brand-name {
+            font-family: var(--font-display);
+            font-size: 28px;
+            color: var(--white);
+            letter-spacing: -0.4px;
+        }
+        .brand-arabic { font-size: 17px; color: var(--gold-bright); opacity: 0.88; }
+
+        .header-meta { text-align: right; }
+        .header-date { font-size: 12px; color: rgba(255,255,255,0.5); font-weight: 300; margin-bottom: 2px; }
+        .header-day  { font-family: var(--font-serif); font-size: 15px; color: var(--gold-bright); font-style: italic; }
+
+        .nav-tabs {
+            display: flex;
+            padding: 0 36px;
+            gap: 0;
+            overflow-x: auto;
+        }
+        .nav-tab {
+            padding: 11px 20px;
+            font-size: 11.5px;
+            font-weight: 900;
+            letter-spacing: 0.10em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.45);
+            cursor: pointer;
+            border: none;
+            background: none;
+            border-bottom: 3px solid transparent;
+            transition: color 0.18s, border-color 0.18s;
+            font-family: var(--font-body);
+            white-space: nowrap;
+        }
+        .nav-tab:hover   { color: rgba(255,255,255,0.78); }
+        .nav-tab.active  { color: var(--gold-bright); border-bottom-color: var(--gold-bright); }
+
+        /* =====================================================
+           MAIN CONTENT
+           ===================================================== */
+        .main {
+            padding: 32px 36px;
+            max-width: 880px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* =====================================================
+           VIEW HEADER
+           ===================================================== */
+        .view-header { margin-bottom: 26px; }
+        .view-title {
+            font-family: var(--font-display);
+            font-size: 36px;
+            color: var(--primary);
+            line-height: 1.1;
+            margin-bottom: 5px;
+        }
+        .view-subtitle { font-size: 14px; color: var(--text-muted); }
+
+        /* =====================================================
+           PROGRESS BAR
+           ===================================================== */
+        .progress-bar-wrap {
+            background: var(--surface-2);
+            border-radius: 99px;
+            height: 5px;
+            margin-top: 14px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-mid), var(--gold-bright));
+            border-radius: 99px;
+            transition: width 0.6s ease;
+            min-width: 0%;
+        }
+
+        /* =====================================================
+           STATS BAR
+           ===================================================== */
+        .stats-bar {
+            display: flex;
+            gap: 0;
+            padding: 0;
+            background: var(--surface);
+            border-radius: var(--r-lg);
+            margin-bottom: 26px;
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-item {
+            flex: 1;
+            padding: 18px 16px;
+            text-align: center;
+            border-right: 1px solid var(--border-light);
+        }
+        .stat-item:last-child { border-right: none; }
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 30px;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 3px;
+        }
+        .stat-label {
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.10em;
+            color: var(--text-muted);
+            font-weight: 900;
+        }
+
+        /* =====================================================
+           SECTION LABEL
+           ===================================================== */
+        .section-label {
+            font-size: 10.5px;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-light);
+        }
+
+        /* =====================================================
+           ROUTINE CARD
+           ===================================================== */
+        .routine-card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--r-lg);
+            margin-bottom: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        .routine-card:hover        { box-shadow: var(--shadow); }
+        .routine-card.active-card  { box-shadow: var(--shadow-lg); border-color: var(--border); }
+        .routine-card.done-card    { opacity: 0.72; }
+
+        .routine-card-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 17px 20px;
+            cursor: pointer;
+            border-left: 5px solid var(--card-color, var(--primary));
+            transition: background 0.15s;
+            user-select: none;
+        }
+        .routine-card-header:hover { background: var(--surface-2); }
+
+        .routine-icon {
+            font-size: 22px;
+            width: 42px;
+            height: 42px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--bg);
+            border-radius: var(--r-md);
+            flex-shrink: 0;
+        }
+
+        .routine-card-info { flex: 1; min-width: 0; }
+        .routine-card-title {
+            font-family: var(--font-serif);
+            font-size: 16.5px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .routine-card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .routine-seg-count { font-size: 11.5px; color: var(--text-muted); }
+
+        .duration-pill {
+            font-size: 11px;
+            font-weight: 900;
+            color: var(--white);
+            background: var(--card-color, var(--primary));
+            padding: 2px 9px;
+            border-radius: 99px;
+            letter-spacing: 0.03em;
+        }
+
+        .routine-card-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .check-circle {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .check-circle.done    { background: var(--success); color: white; }
+        .check-circle.pending { background: var(--surface-2); color: var(--text-muted); }
+        .expand-chevron { font-size: 11px; color: var(--text-muted); transition: transform 0.25s; }
+        .routine-card.active-card .expand-chevron { transform: rotate(180deg); }
+
+        /* =====================================================
+           ROUTINE BODY (expanded)
+           ===================================================== */
+        .routine-body {
+            display: none;
+            border-top: 1px solid var(--border-light);
+            padding: 22px 20px;
+            animation: slideDown 0.22s ease;
+        }
+        .routine-card.active-card .routine-body { display: block; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =====================================================
+           SEGMENTS
+           ===================================================== */
+        .segments-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+
+        .segment-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 15px;
+            background: var(--bg);
+            border-radius: var(--r-md);
+            border: 1px solid var(--border-light);
+            transition: background 0.18s, border-color 0.18s;
+        }
+        .segment-item.seg-active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+        .segment-item.seg-done {
+            background: rgba(64,145,108,0.07);
+            border-color: rgba(64,145,108,0.2);
+        }
+
+        .seg-num {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: var(--surface-2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11.5px; font-weight: 900;
+            flex-shrink: 0;
+            color: var(--text-muted);
+        }
+        .segment-item.seg-active .seg-num { background: var(--gold-bright); color: var(--primary); }
+        .segment-item.seg-done .seg-num   { background: var(--success); color: white; }
+
+        .seg-info { flex: 1; }
+        .seg-label { font-size: 13.5px; font-weight: 700; margin-bottom: 1px; }
+        .seg-dur   { font-size: 11.5px; opacity: 0.6; }
+
+        /* =====================================================
+           TIMER BLOCK
+           ===================================================== */
+        .timer-block {
+            background: var(--primary);
+            border-radius: var(--r-lg);
+            padding: 26px 24px;
+            color: white;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .timer-eyebrow {
+            font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+            opacity: 0.55; margin-bottom: 6px;
+        }
+        .timer-seg-name {
+            font-family: var(--font-serif);
+            font-size: 17px;
+            font-style: italic;
+            color: var(--gold-pale);
+            margin-bottom: 20px;
+        }
+
+        /* SVG ring */
+        .ring-wrap {
+            display: inline-flex;
+            position: relative;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .timer-svg { transform: rotate(-90deg); }
+        .ring-bg   { fill: none; stroke: rgba(255,255,255,0.10); stroke-width: 5; }
+        .ring-fg   {
+            fill: none;
+            stroke: var(--gold-bright);
+            stroke-width: 5;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+        }
+        .ring-center {
+            position: absolute;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .timer-display {
+            font-family: var(--font-display);
+            font-size: 56px;
+            letter-spacing: -3px;
+            line-height: 1;
+        }
+        .timer-of-label { font-size: 11px; opacity: 0.45; margin-top: 3px; }
+
+        .timer-controls { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+        /* =====================================================
+           BUTTONS
+           ===================================================== */
+        .btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 10px 20px;
+            border-radius: var(--r-md);
+            font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+            cursor: pointer; border: none;
+            transition: all 0.18s;
+            font-family: var(--font-body);
+            white-space: nowrap;
+            text-decoration: none;
+        }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .btn-primary {
+            background: var(--gold-bright); color: var(--primary);
+        }
+        .btn-primary:hover:not(:disabled) { background: var(--gold-pale); transform: translateY(-1px); }
+
+        .btn-ghost {
+            background: rgba(255,255,255,0.10); color: white;
+        }
+        .btn-ghost:hover:not(:disabled) { background: rgba(255,255,255,0.20); }
+
+        .btn-outline {
+            background: transparent; color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        .btn-outline:hover:not(:disabled) { background: var(--primary); color: white; }
+
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover:not(:disabled) { background: #2d9e6b; transform: translateY(-1px); }
+
+        .btn-danger { background: var(--error); color: white; }
+        .btn-danger:hover:not(:disabled) { opacity: 0.88; }
+
+        .btn-sm  { padding: 7px 14px; font-size: 11.5px; }
+        .btn-lg  { padding: 14px 30px; font-size: 15px; }
+
+        /* =====================================================
+           COMPLETE / SKIP ROW
+           ===================================================== */
+        .action-row {
+            display: flex; gap: 10px; align-items: center; justify-content: flex-end;
+            margin-top: 14px; flex-wrap: wrap;
+        }
+
+        /* =====================================================
+           TAGS
+           ===================================================== */
+        .tag {
+            display: inline-flex; align-items: center;
+            padding: 3px 10px;
+            border-radius: 99px;
+            font-size: 11px; font-weight: 900; letter-spacing: 0.05em;
+        }
+        .tag-green  { background: rgba(64,145,108,0.15); color: var(--success); }
+        .tag-gold   { background: rgba(212,160,23,0.15); color: var(--gold); }
+        .tag-active { background: var(--gold-bright); color: var(--primary); }
+
+        /* =====================================================
+           JOURNAL MODAL
+           ===================================================== */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(20,40,30,0.62);
+            backdrop-filter: blur(5px);
+            z-index: 200;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.hidden { display: none; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal {
+            background: var(--surface);
+            border-radius: var(--r-xl);
+            max-width: 580px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: slideUp 0.28s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(18px); opacity: 0; }
+            to   { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 28px 28px 20px;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+            border-radius: var(--r-xl) var(--r-xl) 0 0;
+            z-index: 1;
+        }
+        .modal-title    { font-family: var(--font-display); font-size: 25px; color: var(--primary); margin-bottom: 3px; }
+        .modal-subtitle { font-size: 13px; color: var(--text-muted); }
+
+        .modal-body   { padding: 24px 28px; }
+        .modal-footer { padding: 0 28px 26px; display: flex; gap: 10px; justify-content: flex-end; }
+
+        .journal-q { margin-bottom: 20px; }
+        .journal-q-label {
+            font-size: 13px; font-weight: 700; color: var(--primary);
+            margin-bottom: 8px;
+            display: flex; align-items: flex-start; gap: 8px;
+        }
+        .journal-q-label::before {
+            content: '';
+            width: 3px; min-height: 16px;
+            background: var(--gold-bright);
+            border-radius: 2px;
+            display: inline-block;
+            margin-top: 1px;
+        }
+        .journal-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--r-md);
+            font-family: var(--font-body);
+            font-size: 14px; line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            resize: vertical; min-height: 80px;
+            transition: border-color 0.15s;
+            outline: none;
+        }
+        .journal-textarea:focus { border-color: var(--primary-mid); background: var(--white); }
+
+        /* =====================================================
+           AI ANALYSIS
+           ===================================================== */
+        .ai-block {
+            margin-top: 18px;
+            background: var(--primary);
+            border-radius: var(--r-lg);
+            padding: 20px;
+            color: white;
+        }
+        .ai-block-header {
+            font-size: 10.5px; font-weight: 900; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--gold-bright);
+            margin-bottom: 10px;
+        }
+        .ai-block-text {
+            font-size: 14px; line-height: 1.75;
+            color: rgba(255,255,255,0.86);
+            font-family: var(--font-serif);
+            font-style: italic;
+        }
+        .ai-loading { display: flex; align-items: center; gap: 9px; color: rgba(255,255,255,0.55); font-size: 13px; }
+
+        .spinner {
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.18);
+            border-top-color: var(--gold-bright);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* =====================================================
+           ALL ROUTINES VIEW
+           ===================================================== */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+        .overview-card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-left: 5px solid var(--card-color, var(--primary));
+            border-radius: var(--r-lg);
+            padding: 18px;
+            box-shadow: var(--shadow-sm);
+        }
+        .ov-icon-row { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; }
+        .ov-icon     { font-size: 20px; }
+        .ov-title    { font-family: var(--font-serif); font-size: 15.5px; font-weight: 600; color: var(--primary); }
+
+        .day-pills   { display: flex; gap: 3px; margin-bottom: 12px; flex-wrap: wrap; }
+        .day-pill {
+            font-size: 9.5px; font-weight: 900;
+            padding: 2px 7px; border-radius: 99px;
+            letter-spacing: 0.05em;
+        }
+        .day-pill.on   { color: white; }
+        .day-pill.off  { background: var(--surface-2); color: var(--text-muted); }
+
+        .ov-segs     { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+        .ov-seg-row  { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--text-mid); }
+        .ov-seg-time { font-weight: 700; color: var(--text-muted); }
+
+        .ov-total {
+            margin-top: 11px;
+            padding-top: 9px;
+            border-top: 1px solid var(--border-light);
+            display: flex; justify-content: space-between;
+            font-size: 12px; font-weight: 900; color: var(--primary);
+        }
+
+        /* =====================================================
+           HISTORY VIEW
+           ===================================================== */
+        .history-day      { margin-bottom: 28px; }
+        .history-day-head {
+            font-family: var(--font-serif);
+            font-size: 16px; font-weight: 600; color: var(--primary);
+            margin-bottom: 12px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .history-day-head::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        .history-entry {
+            background: var(--surface);
+            border-left: 4px solid var(--card-color, var(--primary));
+            border-radius: var(--r-md);
+            padding: 16px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+        .history-entry-title {
+            display: flex; align-items: center; gap: 8px;
+            font-weight: 700; font-size: 14px; color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .history-time { margin-left: auto; font-size: 11px; color: var(--text-muted); font-weight: 400; }
+
+        .history-qa      { margin-bottom: 9px; }
+        .history-q-label { font-size: 10.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 2px; }
+        .history-a-text  { font-size: 13.5px; color: var(--text-mid); line-height: 1.55; }
+
+        /* =====================================================
+           SETUP VIEW
+           ===================================================== */
+        .setup-card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--r-lg);
+            padding: 28px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow-sm);
+        }
+        .setup-title {
+            font-family: var(--font-display);
+            font-size: 22px; color: var(--primary);
+            margin-bottom: 5px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .setup-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.65; }
+
+        .code-block {
+            background: #0f1e17;
+            color: #8dd4a8;
+            padding: 16px 18px;
+            border-radius: var(--r-md);
+            font-family: 'Courier New', monospace;
+            font-size: 12px; line-height: 1.75;
+            overflow-x: auto;
+            margin: 14px 0;
+        }
+        .code-comment { color: rgba(255,255,255,0.3); }
+
+        .step-list    { list-style: none; counter-reset: steps; }
+        .step-item    { display: flex; gap: 14px; margin-bottom: 18px; }
+        .step-num     {
+            width: 28px; height: 28px; min-width: 28px;
+            background: var(--primary); color: var(--gold-bright);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 900;
+        }
+        .step-title   { font-weight: 700; font-size: 14px; color: var(--primary); margin-bottom: 4px; }
+        .step-desc    { font-size: 13px; color: var(--text-mid); line-height: 1.6; }
+
+        .input-row { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+        .text-input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--r-md);
+            font-size: 14px; font-family: var(--font-body);
+            color: var(--text); background: var(--bg);
+            outline: none; transition: border-color 0.15s;
+        }
+        .text-input:focus { border-color: var(--primary-mid); }
+
+        /* =====================================================
+           EMPTY STATE
+           ===================================================== */
+        .empty-state {
+            text-align: center;
+            padding: 64px 20px;
+            color: var(--text-muted);
+        }
+        .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.45; }
+        .empty-title { font-family: var(--font-serif); font-size: 20px; color: var(--primary); margin-bottom: 8px; }
+        .empty-desc  { font-size: 14px; line-height: 1.65; }
+
+        /* =====================================================
+           TOAST
+           ===================================================== */
+        .toast {
+            position: fixed;
+            bottom: 24px; right: 24px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--r-md);
+            font-size: 14px; font-weight: 700;
+            box-shadow: var(--shadow-lg);
+            z-index: 300;
+            animation: toastIn 0.28s ease;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .toast.hidden { display: none; }
+        @keyframes toastIn {
+            from { transform: translateY(16px) scale(0.95); opacity: 0; }
+            to   { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        /* =====================================================
+           COMPLETE STATE INSIDE CARD
+           ===================================================== */
+        .complete-state {
+            text-align: center;
+            padding: 22px 0;
+        }
+        .complete-emoji { font-size: 36px; margin-bottom: 10px; }
+        .complete-msg {
+            font-family: var(--font-serif);
+            font-size: 19px; color: var(--primary);
+            margin-bottom: 16px;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+        @media (max-width: 680px) {
+            .main          { padding: 16px; }
+            .header-top    { padding: 12px 16px; }
+            .nav-tabs      { padding: 0 12px; }
+            .nav-tab       { padding: 9px 12px; font-size: 10px; }
+            .timer-display { font-size: 42px; }
+            .overview-grid { grid-template-columns: 1fr; }
+            .stats-bar     { flex-wrap: wrap; }
+            .stat-item     { flex: 0 0 50%; border-right: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ================================================== -->
+<!-- APP SHELL                                          -->
+<!-- ================================================== -->
+<header class="header">
+    <div class="header-top">
+        <div class="brand">
+            <span class="brand-name">Mihwar</span>
+            <span class="brand-arabic">محور</span>
+        </div>
+        <div class="header-meta">
+            <div class="header-date" id="hdr-date"></div>
+            <div class="header-day"  id="hdr-day"></div>
+        </div>
+    </div>
+    <nav class="nav-tabs">
+        <button class="nav-tab active" data-view="today"   onclick="navigate('today')">Today</button>
+        <button class="nav-tab"        data-view="all"     onclick="navigate('all')">All Routines</button>
+        <button class="nav-tab"        data-view="history" onclick="navigate('history')">History</button>
+        <button class="nav-tab"        data-view="setup"   onclick="navigate('setup')">Setup</button>
+    </nav>
+</header>
+
+<main class="main" id="main"></main>
+
+<!-- ================================================== -->
+<!-- JOURNAL MODAL                                      -->
+<!-- ================================================== -->
+<div class="modal-overlay hidden" id="journal-overlay">
+    <div class="modal" id="journal-modal">
+        <div class="modal-header">
+            <div class="modal-title"   id="j-title"></div>
+            <div class="modal-subtitle" id="j-sub"></div>
+        </div>
+        <div class="modal-body"   id="j-body"></div>
+        <div class="modal-footer">
+            <button class="btn btn-outline btn-sm" onclick="closeJournal()">Skip</button>
+            <button class="btn btn-primary"        onclick="saveJournal()">💾 Save Reflection</button>
+        </div>
+    </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast hidden" id="toast"><span id="toast-text"></span></div>
+
+<!-- ================================================== -->
+<!-- JAVASCRIPT APPLICATION                             -->
+<!-- ================================================== -->
+<script>
+'use strict';
+
+/* ======================================================
+   DATA
+   ====================================================== */
+const WD  = ['Mon','Tue','Wed','Thu','Fri'];
+const ALL  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const WE   = ['Sat','Sun'];
+
+const ROUTINES = [
+  {
+    id:'eng-reading', title:'Engineering Reading', icon:'⚡', color:'#2d6a4f', days:WD,
+    segments:[
+      { id:'s1', label:'Engineering Material Reading',   dur:30 },
+      { id:'s2', label:'Office Learning Review',         dur:30 },
+      { id:'s3', label:'Reflection',                     dur:30 },
+    ],
+    prompts:[
+      'What key engineering concept did you read about today?',
+      'How does today\'s office learning connect to your broader goals?',
+      'What single insight will you carry into tomorrow?',
+    ]
+  },
+  {
+    id:'quran-learning', title:'Quran Learning', icon:'📖', color:'#1b4332', days:WD,
+    segments:[
+      { id:'s1', label:'Daily Page Reading (1 of 5 weekly)', dur:20 },
+    ],
+    prompts:[
+      'Which page or verses did you read today?',
+      'What meaning or message touched your heart most?',
+    ]
+  },
+  {
+    id:'writing-practice', title:'Writing Practice', icon:'✍️', color:'#4a7c59', days:WD,
+    segments:[
+      { id:'s1', label:'Rewriting Passages',             dur:60 },
+      { id:'s2', label:'Study & Reflect on Technique',   dur:30 },
+    ],
+    prompts:[
+      'Which passage did you rewrite, and from what source?',
+      'What specific technique did you focus on studying today?',
+      'What is one thing you\'re doing better now than last week?',
+    ]
+  },
+  {
+    id:'thought-writing', title:'Thought Writing', icon:'💭', color:'#386641', days:WD,
+    segments:[
+      { id:'s1', label:'Write Thoughts Freely',          dur:10 },
+      { id:'s2', label:'Edit for Clarity',               dur:20 },
+      { id:'s3', label:'Study & Reflect — Right/Wrong',  dur:20 },
+    ],
+    prompts:[
+      'What thoughts or ideas did you explore today?',
+      'What did your editing process reveal about your thinking?',
+      'What did you do well — and what still needs work?',
+    ]
+  },
+  {
+    id:'novel-reading', title:'Novel Reading', icon:'📚', color:'#5a7d5a', days:WD,
+    segments:[
+      { id:'s1', label:'Novel Reading',                  dur:30 },
+    ],
+    prompts:[
+      'What book are you reading, and where are you in the story?',
+      'What scene, character, or idea resonated with you most today?',
+    ]
+  },
+  {
+    id:'islamic-books', title:'Islamic Books', icon:'🌙', color:'#1a3a5a', days:WD,
+    segments:[
+      { id:'s1', label:'Reading',                        dur:30 },
+      { id:'s2', label:'Reflection',                     dur:30 },
+    ],
+    prompts:[
+      'What Islamic topic or concept did you study today?',
+      'How can you apply this teaching practically this week?',
+    ]
+  },
+  {
+    id:'traces-dream', title:'Traces of a Dream', icon:'🌟', color:'#7b5e2a', days:ALL,
+    segments:[
+      { id:'s1', label:'Session',                        dur:30 },
+    ],
+    prompts:[
+      'What did you work on or explore in this session?',
+      'What traces remain — what lingers in your mind?',
+    ]
+  },
+  {
+    id:'coding-learning', title:'Coding Learning', icon:'💻', color:'#2d4a6a', days:ALL,
+    segments:[
+      { id:'s1', label:'Coding Practice',                dur:10 },
+    ],
+    prompts:[
+      'What did you learn or build today?',
+      'What concept finally clicked — or still needs work?',
+    ]
+  },
+  {
+    id:'adkhar', title:'Adkhar', icon:'🤲', color:'#3a5c40', days:ALL,
+    segments:[
+      { id:'s1', label:'Recitation',                     dur:30 },
+      { id:'s2', label:'Reflection',                     dur:30 },
+    ],
+    prompts:[
+      'Which adkhar did you recite today?',
+      'What feelings or states arose during recitation?',
+      'What meanings did you reflect upon most deeply?',
+    ]
+  },
+  {
+    id:'quran-memorization', title:'Quran Memorization', icon:'📿', color:'#4a2d6a', days:WE,
+    segments:[
+      { id:'s1', label:'Memorize 1 Page',                dur:45 },
+    ],
+    prompts:[
+      'Which page and verses did you memorize today?',
+      'How many times did you review — and how does it feel to have it in your heart?',
+    ]
+  },
+  {
+    id:'weekly-reflection', title:'Weekly Reflection', icon:'🔄', color:'#5a4a2d', days:WE,
+    segments:[
+      { id:'s1', label:'Weekly Reflection',              dur:15 },
+    ],
+    prompts:[
+      'What went well this week across your routines?',
+      'What did you struggle with — and why?',
+      'What is your clear intention heading into next week?',
+    ]
+  },
+  {
+    id:'random-reading', title:'Random Reading', icon:'🎲', color:'#5a5a2d', days:ALL,
+    segments:[
+      { id:'s1', label:'Reading',                        dur:20 },
+      { id:'s2', label:'Reflection',                     dur:20 },
+    ],
+    prompts:[
+      'What did you read today — what drew you to it?',
+      'What surprised, delighted, or challenged you?',
+      'One thing you\'ll carry forward from this reading:',
+    ]
+  },
+  {
+    id:'daily-revision', title:'Daily Revision', icon:'📝', color:'#2d5a6a', days:WD,
+    segments:[
+      { id:'s1', label:'Revision from Reflection Notes', dur:30 },
+    ],
+    prompts:[
+      'Which reflection notes did you revise today?',
+      'What connections did you discover between your notes?',
+    ]
+  },
+];
+
+/* ======================================================
+   STATE
+   ====================================================== */
+const state = {
+  view: 'today',
+  activeRoutineId: null,
+  timers: {},          // { routineId → { segIdx, secs, running, doneParts: Set } }
+  journalRoutineId: null,
+  apiKey: localStorage.getItem('mihwar_api_key') || '',
+};
+const intervals = {};   // { routineId → intervalId }
+
+/* ======================================================
+   HELPERS — DATE / ROUTING
+   ====================================================== */
+function todayName() {
+  return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date().getDay()];
+}
+function dateKey() {
+  return new Date().toISOString().split('T')[0];
+}
+function routineById(id) { return ROUTINES.find(r => r.id === id); }
+function totalDur(r)      { return r.segments.reduce((s, sg) => s + sg.dur, 0); }
+function isToday(routineId) {
+  return !!lsGet(`journal_${routineId}_${dateKey()}`);
+}
+function todayRoutines() {
+  const t = todayName();
+  return ROUTINES.filter(r => r.days.includes(t));
+}
+function lsGet(k)      { try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; } }
+function lsSet(k, v)   { localStorage.setItem(k, JSON.stringify(v)); }
+function lsRaw(k)      { return localStorage.getItem(k); }
+function lsSetRaw(k,v) { localStorage.setItem(k, v); }
+
+/* ======================================================
+   TIMER
+   ====================================================== */
+function getTimer(id) {
+  if (!state.timers[id]) {
+    const r = routineById(id);
+    state.timers[id] = { segIdx:0, secs: r.segments[0].dur * 60, running:false, doneParts: new Set() };
+  }
+  return state.timers[id];
+}
+
+function startTimer(id) {
+  const t = getTimer(id);
+  if (t.running) return;
+  t.running = true;
+  intervals[id] = setInterval(() => {
+    const tm = state.timers[id];
+    if (!tm || !tm.running) { clearInterval(intervals[id]); return; }
+    tm.secs--;
+    if (tm.secs <= 0) {
+      tm.secs = 0; tm.running = false;
+      clearInterval(intervals[id]);
+      autoAdvance(id);
+    } else {
+      patchTimerBlock(id);
+    }
+  }, 1000);
+  patchTimerBlock(id);
+}
+
+function pauseTimer(id) {
+  const t = getTimer(id);
+  t.running = false;
+  clearInterval(intervals[id]);
+  patchTimerBlock(id);
+}
+
+function resetTimer(id) {
+  const t = getTimer(id);
+  t.running = false;
+  clearInterval(intervals[id]);
+  const r = routineById(id);
+  t.secs = r.segments[t.segIdx].dur * 60;
+  patchTimerBlock(id);
+}
+
+function autoAdvance(id) {
+  const t = state.timers[id];
+  const r = routineById(id);
+  t.doneParts.add(t.segIdx);
+  if (t.segIdx < r.segments.length - 1) {
+    t.segIdx++;
+    t.secs = r.segments[t.segIdx].dur * 60;
+    toast(`✓ Done! Starting: ${r.segments[t.segIdx].label}`);
+    refreshBody(id);
+  } else {
+    toast(`🎉 ${r.title} complete!`);
+    refreshBody(id);
+    setTimeout(() => openJournal(id), 600);
+  }
+}
+
+function completeSegment(id) {
+  clearInterval(intervals[id]);
+  const t = getTimer(id);
+  t.running = false;
+  t.secs = 0;
+  autoAdvance(id);
+}
+
+function fmtTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+/* ======================================================
+   NAVIGATION
+   ====================================================== */
+function navigate(view) {
+  state.view = view;
+  // pause all timers when leaving Today
+  if (view !== 'today') {
+    Object.keys(intervals).forEach(id => { clearInterval(intervals[id]); });
+    Object.values(state.timers).forEach(t => t.running = false);
+  }
+  document.querySelectorAll('.nav-tab').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.view === view)
+  );
+  renderMain();
+}
+
+function renderMain() {
+  const el = document.getElementById('main');
+  switch(state.view) {
+    case 'today':   el.innerHTML = renderToday();   break;
+    case 'all':     el.innerHTML = renderAll();     break;
+    case 'history': el.innerHTML = renderHistory(); break;
+    case 'setup':   el.innerHTML = renderSetup();   break;
+  }
+}
+
+/* ======================================================
+   TODAY VIEW
+   ====================================================== */
+function renderToday() {
+  const routines   = todayRoutines();
+  const completed  = routines.filter(r => isToday(r.id)).length;
+  const totalMins  = routines.reduce((s,r) => s + totalDur(r), 0);
+  const pct        = routines.length ? Math.round(completed / routines.length * 100) : 0;
+  const t          = todayName();
+  const isWE       = ['Sat','Sun'].includes(t);
+
+  return `
+  <div class="view-header">
+    <div class="view-title">Today's Practice</div>
+    <div class="view-subtitle">${completed} of ${routines.length} routines complete · ${totalMins} min total</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item"><div class="stat-value">${routines.length}</div><div class="stat-label">Routines</div></div>
+    <div class="stat-item"><div class="stat-value">${totalMins}</div><div class="stat-label">Minutes</div></div>
+    <div class="stat-item"><div class="stat-value">${completed}</div><div class="stat-label">Done</div></div>
+    <div class="stat-item"><div class="stat-value">${pct}%</div><div class="stat-label">Progress</div></div>
+  </div>
+
+  <div class="section-label">${isWE ? 'Weekend' : 'Weekday'} · ${t}</div>
+
+  <div id="routines-list">
+    ${routines.map(r => renderCard(r)).join('')}
+  </div>`;
+}
+
+function renderCard(r) {
+  const isActive = state.activeRoutineId === r.id;
+  const isDone   = isToday(r.id);
+  return `
+  <div class="routine-card ${isActive ? 'active-card' : ''} ${isDone ? 'done-card' : ''}"
+       id="card-${r.id}" style="--card-color:${r.color}">
+    <div class="routine-card-header" onclick="toggleCard('${r.id}')">
+      <div class="routine-icon">${r.icon}</div>
+      <div class="routine-card-info">
+        <div class="routine-card-title">${r.title}</div>
+        <div class="routine-card-meta">
+          <span class="routine-seg-count">${r.segments.length} segment${r.segments.length>1?'s':''}</span>
+          <span class="duration-pill">${totalDur(r)} min</span>
+        </div>
+      </div>
+      <div class="routine-card-right">
+        <div class="check-circle ${isDone?'done':'pending'}">${isDone?'✓':'○'}</div>
+        <span class="expand-chevron">▼</span>
+      </div>
+    </div>
+    <div class="routine-body" id="body-${r.id}">
+      ${isActive ? renderBody(r) : ''}
+    </div>
+  </div>`;
+}
+
+function renderBody(r) {
+  const t       = getTimer(r.id);
+  const allDone = r.segments.every((_,i) => t.doneParts.has(i));
+  const done    = isToday(r.id);
+
+  return `
+  <div class="segments-list">
+    ${r.segments.map((seg,i) => {
+      const segDone   = t.doneParts.has(i);
+      const segActive = !allDone && t.segIdx === i;
+      return `
+      <div class="segment-item ${segDone?'seg-done':''} ${segActive?'seg-active':''}">
+        <div class="seg-num">${segDone?'✓':i+1}</div>
+        <div class="seg-info">
+          <div class="seg-label">${seg.label}</div>
+          <div class="seg-dur">${seg.dur} minutes</div>
+        </div>
+        ${segActive ? '<span class="tag tag-active">Active</span>' : ''}
+        ${segDone   ? '<span class="tag tag-green">Done</span>'   : ''}
+      </div>`;
+    }).join('')}
+  </div>
+
+  ${!allDone ? `<div class="timer-block" id="timer-${r.id}">${renderTimerInner(r, t)}</div>` : ''}
+
+  ${allDone && !done ? `
+    <div class="complete-state">
+      <div class="complete-emoji">🎉</div>
+      <div class="complete-msg">All segments complete!</div>
+      <button class="btn btn-primary btn-lg" onclick="openJournal('${r.id}')">📔 Write Reflection</button>
+    </div>` : ''}
+
+  ${done ? `
+    <div style="text-align:center;padding:16px 0">
+      <span class="tag tag-green" style="font-size:13px;padding:6px 18px">✓ Complete &amp; Journaled</span>
+    </div>` : ''}
+
+  ${!allDone ? `
+    <div class="action-row">
+      <button class="btn btn-outline btn-sm" onclick="skipSeg('${r.id}')">Skip →</button>
+      <button class="btn btn-success btn-sm" onclick="openJournal('${r.id}')">Mark Complete &amp; Journal</button>
+    </div>` : ''}`;
+}
+
+function renderTimerInner(r, t) {
+  const seg      = r.segments[t.segIdx];
+  const total    = seg.dur * 60;
+  const pct      = total > 0 ? t.secs / total : 0;
+  const R        = 72;
+  const circ     = 2 * Math.PI * R;
+  const offset   = circ * (1 - pct);
+  return `
+  <div class="timer-eyebrow">Current Segment</div>
+  <div class="timer-seg-name">${seg.label}</div>
+  <div class="ring-wrap">
+    <svg class="timer-svg" width="190" height="190" viewBox="0 0 190 190">
+      <circle class="ring-bg" cx="95" cy="95" r="${R}"/>
+      <circle class="ring-fg" cx="95" cy="95" r="${R}"
+        stroke-dasharray="${circ.toFixed(2)}"
+        stroke-dashoffset="${offset.toFixed(2)}"/>
+    </svg>
+    <div class="ring-center">
+      <div class="timer-display">${fmtTime(t.secs)}</div>
+      <div class="timer-of-label">of ${fmtTime(total)}</div>
+    </div>
+  </div>
+  <div class="timer-controls">
+    ${t.running
+      ? `<button class="btn btn-ghost" onclick="pauseTimer('${r.id}')">⏸ Pause</button>`
+      : `<button class="btn btn-primary" onclick="startTimer('${r.id}')">▶ ${t.secs===total?'Start':'Resume'}</button>`}
+    <button class="btn btn-ghost" onclick="resetTimer('${r.id}')">↺ Reset</button>
+    <button class="btn btn-ghost" onclick="completeSegment('${r.id}')">✓ Done</button>
+  </div>`;
+}
+
+/* patch only the timer block without re-rendering the whole body */
+function patchTimerBlock(id) {
+  const el = document.getElementById(`timer-${id}`);
+  if (!el) return;
+  const r = routineById(id);
+  const t = state.timers[id];
+  if (t) el.innerHTML = renderTimerInner(r, t);
+}
+
+/* patch only the timer block and segments list */
+function refreshBody(id) {
+  const el = document.getElementById(`body-${id}`);
+  if (!el) return;
+  el.innerHTML = renderBody(routineById(id));
+}
+
+function toggleCard(id) {
+  if (state.activeRoutineId === id) {
+    state.activeRoutineId = null;
+  } else {
+    if (state.activeRoutineId) pauseTimer(state.activeRoutineId);
+    state.activeRoutineId = id;
+  }
+  // re-render list
+  const routines = todayRoutines();
+  document.getElementById('routines-list').innerHTML = routines.map(r => renderCard(r)).join('');
+}
+
+function skipSeg(id) {
+  const t = getTimer(id);
+  const r = routineById(id);
+  t.doneParts.add(t.segIdx);
+  clearInterval(intervals[id]);
+  t.running = false;
+  if (t.segIdx < r.segments.length - 1) {
+    t.segIdx++;
+    t.secs = r.segments[t.segIdx].dur * 60;
+  }
+  refreshBody(id);
+}
+
+/* ======================================================
+   ALL ROUTINES VIEW
+   ====================================================== */
+function renderAll() {
+  const t = todayName();
+  const wd  = ROUTINES.filter(r => r.days.length === 5);
+  const all = ROUTINES.filter(r => r.days.length === 7);
+  const we  = ROUTINES.filter(r => r.days.length === 2);
+
+  function grid(list) {
+    return `<div class="overview-grid">${list.map(r => ovCard(r, t)).join('')}</div>`;
+  }
+
+  return `
+  <div class="view-header">
+    <div class="view-title">All Routines</div>
+    <div class="view-subtitle">13 practices across your week — ${ROUTINES.reduce((s,r)=>s+totalDur(r),0)} possible minutes</div>
+  </div>
+
+  <div class="section-label">Weekday Routines · Mon–Fri</div>
+  ${grid(wd)}
+
+  <div class="section-label">Daily Routines · Mon–Sun</div>
+  ${grid(all)}
+
+  <div class="section-label">Weekend Routines · Sat–Sun</div>
+  ${grid(we)}`;
+}
+
+function ovCard(r, today) {
+  const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  return `
+  <div class="overview-card" style="--card-color:${r.color}">
+    <div class="ov-icon-row">
+      <span class="ov-icon">${r.icon}</span>
+      <span class="ov-title">${r.title}</span>
+    </div>
+    <div class="day-pills">
+      ${DAYS.map(d => {
+        const on = r.days.includes(d);
+        return `<span class="day-pill ${on?'on':'off'}" ${on?`style="background:${r.color}"`:''}>${d}</span>`;
+      }).join('')}
+    </div>
+    <ul class="ov-segs">
+      ${r.segments.map(s => `
+      <li class="ov-seg-row">
+        <span>${s.label}</span>
+        <span class="ov-seg-time">${s.dur}m</span>
+      </li>`).join('')}
+    </ul>
+    <div class="ov-total">
+      <span>Total per session</span>
+      <span>${totalDur(r)} min</span>
+    </div>
+  </div>`;
+}
+
+/* ======================================================
+   HISTORY VIEW
+   ====================================================== */
+function allEntries() {
+  const out = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('journal_')) {
+      const v = lsGet(k);
+      if (v) out.push({ key: k, ...v });
+    }
+  }
+  return out.sort((a,b) => b.completedAt - a.completedAt);
+}
+
+function renderHistory() {
+  const entries = allEntries();
+  if (!entries.length) return `
+    <div class="view-header">
+      <div class="view-title">History</div>
+      <div class="view-subtitle">Your reflection journal</div>
+    </div>
+    <div class="empty-state">
+      <div class="empty-icon">📔</div>
+      <div class="empty-title">No reflections yet</div>
+      <div class="empty-desc">Complete routines and write reflections.<br>They will appear here.</div>
+    </div>`;
+
+  const grouped = {};
+  entries.forEach(e => {
+    if (!grouped[e.dateKey]) grouped[e.dateKey] = [];
+    grouped[e.dateKey].push(e);
+  });
+  const streak = calcStreak(entries);
+
+  return `
+  <div class="view-header">
+    <div class="view-title">History</div>
+    <div class="view-subtitle">${entries.length} reflections across ${Object.keys(grouped).length} days</div>
+  </div>
+
+  <div class="stats-bar" style="margin-bottom:24px">
+    <div class="stat-item"><div class="stat-value">${entries.length}</div><div class="stat-label">Reflections</div></div>
+    <div class="stat-item"><div class="stat-value">${Object.keys(grouped).length}</div><div class="stat-label">Days Active</div></div>
+    <div class="stat-item"><div class="stat-value">${streak}</div><div class="stat-label">Day Streak</div></div>
+    <div class="stat-item"><div class="stat-value">${ROUTINES.length}</div><div class="stat-label">Routines</div></div>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin-bottom:16px;gap:10px">
+    <button class="btn btn-outline btn-sm" onclick="exportData()">⬇ Export JSON</button>
+  </div>
+
+  ${Object.entries(grouped).map(([dk, list]) => `
+    <div class="history-day">
+      <div class="history-day-head">${fmtDate(dk)} · ${list.length} session${list.length>1?'s':''}</div>
+      ${list.map(e => histEntry(e)).join('')}
+    </div>`).join('')}`;
+}
+
+function histEntry(e) {
+  const analysisKey = `analysis_${e.key}`;
+  const analysis    = lsRaw(analysisKey);
+  const hasKey      = !!state.apiKey;
+
+  return `
+  <div class="history-entry" style="--card-color:${e.routineColor||'#1a3a2a'}">
+    <div class="history-entry-title">
+      <span>${e.routineIcon}</span>
+      <span>${e.routineTitle}</span>
+      <span class="history-time">${fmtClock(e.completedAt)}</span>
+    </div>
+    ${(e.prompts||[]).map((p,i) => e.responses && e.responses[i] ? `
+    <div class="history-qa">
+      <div class="history-q-label">${p}</div>
+      <div class="history-a-text">${esc(e.responses[i])}</div>
+    </div>` : '').join('')}
+
+    ${analysis ? `
+    <div class="ai-block" style="margin-top:12px">
+      <div class="ai-block-header">✦ Claude's Reflection</div>
+      <div class="ai-block-text">${esc(analysis)}</div>
+    </div>` : ''}
+
+    ${!analysis && hasKey ? `
+    <div style="margin-top:10px">
+      <button class="btn btn-outline btn-sm"
+              onclick="analyzeEntry('${e.key}','${e.routineId}',this)">
+        🤖 Analyze with AI
+      </button>
+    </div>` : ''}
+  </div>`;
+}
+
+function calcStreak(entries) {
+  const dates = [...new Set(entries.map(e => e.dateKey))].sort().reverse();
+  let s = 1;
+  for (let i = 1; i < dates.length; i++) {
+    const diff = (new Date(dates[i-1]) - new Date(dates[i])) / 86400000;
+    if (diff === 1) s++; else break;
+  }
+  return dates.length ? s : 0;
+}
+
+/* ======================================================
+   SETUP VIEW
+   ====================================================== */
+function renderSetup() {
+  return `
+  <div class="view-header">
+    <div class="view-title">Setup &amp; Integration</div>
+    <div class="view-subtitle">Connect Claude AI · Google Sheets · Telegram</div>
+  </div>
+
+  <!-- Claude AI -->
+  <div class="setup-card">
+    <div class="setup-title">🤖 Claude AI Reflection Analysis</div>
+    <div class="setup-desc">
+      Add your Anthropic API key to unlock AI-powered insights. After completing a routine, Claude reads your journal entries and offers thoughtful reflections to deepen your practice. Your key is stored only in your browser's local storage.
+    </div>
+    <div class="input-row">
+      <input type="password" class="text-input" id="api-key-input"
+             placeholder="sk-ant-api03-..." value="${esc(state.apiKey)}"/>
+      <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
+    </div>
+    <div style="margin-top:9px;font-size:12px;color:var(--text-muted)">
+      Get your key at <strong>console.anthropic.com</strong> — usage is billed per API call.
+    </div>
+  </div>
+
+  <!-- Google Sheets -->
+  <div class="setup-card">
+    <div class="setup-title">📊 Google Sheets Backend</div>
+    <div class="setup-desc">
+      Use Google Sheets as a persistent database for your reflection data. Every saved journal entry will sync automatically via a lightweight Apps Script webhook.
+    </div>
+    <ol class="step-list">
+      <li class="step-item">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Create a Google Sheet</div>
+          <div class="step-desc">Go to sheets.google.com → new sheet → name it <strong>Mihwar Routines</strong>. Add row 1 headers: Date, Routine, Icon, Prompts, Responses, Timestamp.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Open Apps Script</div>
+          <div class="step-desc">Extensions → Apps Script. Replace all code with:</div>
+          <div class="code-block"><span class="code-comment">// Mihwar → Google Sheets webhook</span>
+function doPost(e) {
+  var sheet = SpreadsheetApp
+    .getActiveSpreadsheet()
+    .getSheetByName('Mihwar Routines');
+  var d = JSON.parse(e.postData.contents);
+  sheet.appendRow([
+    d.dateKey,
+    d.routineTitle,
+    d.routineIcon,
+    (d.prompts  || []).join(' | '),
+    (d.responses|| []).join(' | '),
+    new Date().toISOString()
+  ]);
+  return ContentService
+    .createTextOutput(JSON.stringify({status:'ok'}))
+    .setMimeType(ContentService.MimeType.JSON);
+}</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Deploy as Web App</div>
+          <div class="step-desc">Deploy → New deployment → Web App. Execute as <em>Me</em>, access <em>Anyone</em>. Copy the Web App URL.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-title">Paste Web App URL here</div>
+          <div class="step-desc">Mihwar will POST each saved journal entry to your Sheet automatically.</div>
+          <div class="input-row">
+            <input type="text" class="text-input" id="sheets-url"
+                   placeholder="https://script.google.com/macros/s/..."
+                   value="${esc(lsRaw('mihwar_sheets_url')||'')}"/>
+            <button class="btn btn-primary" onclick="saveSheetsUrl()">Save</button>
+          </div>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <!-- Telegram -->
+  <div class="setup-card">
+    <div class="setup-title">📱 Telegram Daily Reminders</div>
+    <div class="setup-desc">
+      A time-triggered Apps Script function sends you a morning message listing today's routines with emoji and durations.
+    </div>
+    <ol class="step-list">
+      <li class="step-item">
+        <div class="step-num">1</div>
+        <div>
+          <div class="step-title">Create a Telegram Bot</div>
+          <div class="step-desc">Message <strong>@BotFather</strong> on Telegram → /newbot → follow prompts → copy the Bot Token.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">2</div>
+        <div>
+          <div class="step-title">Get Your Chat ID</div>
+          <div class="step-desc">Send your bot any message, then visit: <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code>. Your chat ID is in the "chat" object.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">3</div>
+        <div>
+          <div class="step-title">Add to Apps Script</div>
+          <div class="step-desc">Add this function alongside the doPost function above:</div>
+          <div class="code-block"><span class="code-comment">// Add your credentials here</span>
+var TG_TOKEN  = 'YOUR_BOT_TOKEN';
+var TG_CHATID = 'YOUR_CHAT_ID';
+
+function sendDailyReminder() {
+  var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var day  = days[new Date().getDay()];
+  var isWD = !['Sat','Sun'].includes(day);
+
+  var msg = '🌿 *Mihwar — Daily Practice*\n\n';
+  msg += '📅 *' + day + '* — ' + new Date().toDateString() + '\n\n';
+
+  if (isWD) {
+    msg += '⚡ Engineering Reading · 90 min\n';
+    msg += '📖 Quran Learning · 20 min\n';
+    msg += '✍️ Writing Practice · 90 min\n';
+    msg += '💭 Thought Writing · 50 min\n';
+    msg += '📚 Novel Reading · 30 min\n';
+    msg += '🌙 Islamic Books · 60 min\n';
+    msg += '📝 Daily Revision · 30 min\n';
+  }
+  msg += '🌟 Traces of a Dream · 30 min\n';
+  msg += '💻 Coding Learning · 10 min\n';
+  msg += '🤲 Adkhar · 60 min\n';
+  msg += '🎲 Random Reading · 40 min\n';
+  if (!isWD) {
+    msg += '📿 Quran Memorization · 45 min\n';
+    msg += '🔄 Weekly Reflection · 15 min\n';
+  }
+  msg += '\n_بسم الله الرحمن الرحيم_';
+
+  UrlFetchApp.fetch(
+    'https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage',
+    {
+      method: 'post',
+      contentType: 'application/json',
+      payload: JSON.stringify({
+        chat_id: TG_CHATID,
+        text: msg,
+        parse_mode: 'Markdown'
+      })
+    }
+  );
+}</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">4</div>
+        <div>
+          <div class="step-title">Set a Daily Time Trigger</div>
+          <div class="step-desc">Apps Script → Triggers (clock icon) → Add Trigger → <strong>sendDailyReminder</strong> → Time-driven → Day timer → choose your morning hour (e.g. 7–8 am).</div>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+  <!-- Data Management -->
+  <div class="setup-card">
+    <div class="setup-title">⬇ Data Management</div>
+    <div class="setup-desc">Export all reflection history as JSON, or clear everything to start fresh.</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-outline" onclick="exportData()">Export All Data (JSON)</button>
+      <button class="btn btn-danger"  onclick="clearData()">Clear All Data</button>
+    </div>
+  </div>`;
+}
+
+/* ======================================================
+   JOURNAL MODAL
+   ====================================================== */
+function openJournal(id) {
+  state.journalRoutineId = id;
+  const r     = routineById(id);
+  const saved = lsGet(`journal_${id}_${dateKey()}`);
+
+  document.getElementById('j-title').textContent = `${r.icon} ${r.title}`;
+  document.getElementById('j-sub').textContent   =
+    new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+
+  document.getElementById('j-body').innerHTML = `
+    ${r.prompts.map((p, i) => `
+    <div class="journal-q">
+      <div class="journal-q-label">${p}</div>
+      <textarea class="journal-textarea" id="jq${i}" rows="3"
+                placeholder="Write your reflection...">${esc(saved && saved.responses ? saved.responses[i]||'' : '')}</textarea>
+    </div>`).join('')}
+    ${state.apiKey ? `
+    <div>
+      <button class="btn btn-outline btn-sm" id="ai-btn" onclick="analyzeModal('${id}')">
+        🤖 Analyze with AI
+      </button>
+    </div>
+    <div id="ai-area"></div>` : ''}`;
+
+  document.getElementById('journal-overlay').classList.remove('hidden');
+}
+
+function closeJournal() {
+  document.getElementById('journal-overlay').classList.add('hidden');
+  state.journalRoutineId = null;
+}
+
+function saveJournal() {
+  const id = state.journalRoutineId;
+  if (!id) return;
+  const r         = routineById(id);
+  const responses = r.prompts.map((_,i) => {
+    const el = document.getElementById(`jq${i}`);
+    return el ? el.value.trim() : '';
+  });
+
+  const data = {
+    routineId: id,
+    routineTitle: r.title,
+    routineIcon:  r.icon,
+    routineColor: r.color,
+    dateKey: dateKey(),
+    completedAt: Date.now(),
+    prompts:   r.prompts,
+    responses,
+  };
+  lsSet(`journal_${id}_${dateKey()}`, data);
+
+  // Sync to Sheets
+  const sheetsUrl = lsRaw('mihwar_sheets_url');
+  if (sheetsUrl) {
+    fetch(sheetsUrl, { method:'POST', body: JSON.stringify(data) }).catch(()=>{});
+  }
+
+  closeJournal();
+  toast('📔 Reflection saved!');
+  renderMain();
+}
+
+/* ======================================================
+   AI
+   ====================================================== */
+async function analyzeModal(id) {
+  const r         = routineById(id);
+  const responses = r.prompts.map((_,i) => {
+    const el = document.getElementById(`jq${i}`);
+    return el ? el.value.trim() : '';
+  });
+  if (responses.every(s => !s)) { toast('Write your reflections first!'); return; }
+
+  const combined = r.prompts.map((p,i) => `Q: ${p}\nA: ${responses[i]||'(not answered)'}`).join('\n\n');
+  const btn  = document.getElementById('ai-btn');
+  const area = document.getElementById('ai-area');
+  if (btn) btn.disabled = true;
+  area.innerHTML = `<div class="ai-block" style="margin-top:14px"><div class="ai-loading"><div class="spinner"></div>Claude is reflecting…</div></div>`;
+
+  try {
+    const result = await claudeAPI(r, combined);
+    area.innerHTML = `<div class="ai-block" style="margin-top:14px"><div class="ai-block-header">✦ Claude's Reflection</div><div class="ai-block-text">${esc(result)}</div></div>`;
+    lsSetRaw(`analysis_journal_${id}_${dateKey()}`, result);
+  } catch(err) {
+    area.innerHTML = `<div style="color:var(--error);font-size:13px;margin-top:10px">Error: ${esc(err.message)}</div>`;
+  }
+  if (btn) btn.disabled = false;
+}
+
+async function analyzeEntry(journalKey, routineId, btn) {
+  const entry = lsGet(journalKey);
+  if (!entry) return;
+  const r       = routineById(routineId);
+  const combined = (entry.prompts||[]).map((p,i) => `Q: ${p}\nA: ${(entry.responses||[])[i]||''}`).join('\n\n');
+  btn.disabled    = true;
+  btn.textContent = '⏳ Analyzing…';
+  try {
+    const result = await claudeAPI(r, combined);
+    lsSetRaw(`analysis_${journalKey}`, result);
+    toast('✓ Analysis saved!');
+    renderMain();
+  } catch(err) {
+    toast('Error: ' + err.message);
+    btn.disabled    = false;
+    btn.textContent = '🤖 Analyze with AI';
+  }
+}
+
+async function claudeAPI(r, journalText) {
+  const prompt = `You are a thoughtful personal growth coach with knowledge of Islamic scholarship and practice.
+
+The user has just completed their "${r.title}" routine and written these reflections:
+
+${journalText}
+
+Please provide a warm, specific reflection (3–5 sentences) that:
+1. Acknowledges what they observed or accomplished
+2. Offers a deeper insight or connection they may not have considered
+3. Ends with a gentle, practical suggestion or question for tomorrow
+
+Be warm, specific to their writing, and encouraging. Speak directly to them.`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': state.apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 320,
+      messages: [{ role:'user', content: prompt }],
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(()=>({}));
+    throw new Error(err.error?.message || `API error ${res.status}`);
+  }
+  const data = await res.json();
+  return data.content[0].text;
+}
+
+/* ======================================================
+   UTILITIES
+   ====================================================== */
+function toast(msg, ms=3200) {
+  const el   = document.getElementById('toast');
+  const text = document.getElementById('toast-text');
+  text.textContent = msg;
+  el.classList.remove('hidden');
+  clearTimeout(el._tid);
+  el._tid = setTimeout(() => el.classList.add('hidden'), ms);
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function fmtDate(dk) {
+  const d = new Date(dk + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+}
+
+function fmtClock(ts) {
+  return new Date(ts).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
+}
+
+function saveApiKey() {
+  const v = document.getElementById('api-key-input').value.trim();
+  state.apiKey = v;
+  localStorage.setItem('mihwar_api_key', v);
+  toast('✓ API key saved');
+}
+
+function saveSheetsUrl() {
+  const v = document.getElementById('sheets-url').value.trim();
+  lsSetRaw('mihwar_sheets_url', v);
+  toast('✓ Sheets URL saved');
+}
+
+function exportData() {
+  const entries = allEntries();
+  const blob    = new Blob([JSON.stringify(entries, null, 2)], { type:'application/json' });
+  const url     = URL.createObjectURL(blob);
+  const a       = Object.assign(document.createElement('a'), { href:url, download:`mihwar-${dateKey()}.json` });
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearData() {
+  if (!confirm('Delete all reflection history? This cannot be undone.')) return;
+  const del = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && (k.startsWith('journal_') || k.startsWith('analysis_'))) del.push(k);
+  }
+  del.forEach(k => localStorage.removeItem(k));
+  toast('All reflection data cleared.');
+  renderMain();
+}
+
+/* ======================================================
+   INIT
+   ====================================================== */
+(function init() {
+  const now = new Date();
+  document.getElementById('hdr-date').textContent =
+    now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  document.getElementById('hdr-day').textContent = todayName();
+  renderMain();
+})();
+</script>
+</body>
+</html>
