@@ -280,16 +280,65 @@
 
         .routine-card-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
         .check-circle {
-            width: 24px; height: 24px;
+            width: 28px; height: 28px;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            flex-shrink: 0;
         }
-        .check-circle.done    { background: var(--success); color: white; }
-        .check-circle.pending { background: var(--surface-2); color: var(--text-muted); }
+        .check-circle.done {
+            background: var(--success); color: white;
+            box-shadow: 0 0 0 3px rgba(64,145,108,0.18);
+        }
+        .check-circle.pending {
+            background: var(--surface-2); color: var(--text-muted);
+            border: 2px dashed var(--border);
+        }
+        .check-circle:hover { transform: scale(1.15); }
+        .check-circle.pending:hover {
+            background: var(--gold-pale); color: var(--gold);
+            border-color: var(--gold-bright);
+        }
+        .check-circle.done:hover { background: #2d9e6b; }
+
         .expand-chevron { font-size: 11px; color: var(--text-muted); transition: transform 0.25s; }
         .routine-card.active-card .expand-chevron { transform: rotate(180deg); }
+
+        /* Order buttons */
+        .order-btns { display: flex; flex-direction: column; gap: 1px; flex-shrink: 0; }
+        .order-btn {
+            width: 20px; height: 18px;
+            background: none; border: none; cursor: pointer;
+            font-size: 9px; color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 3px;
+            transition: background 0.12s, color 0.12s;
+            line-height: 1;
+        }
+        .order-btn:hover { background: var(--surface-2); color: var(--primary); }
+        .order-btn:disabled { opacity: 0.2; cursor: default; }
+
+        /* Sync status badge */
+        .sheets-status {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11.5px; font-weight: 700;
+            padding: 4px 12px; border-radius: 99px;
+            margin-top: 10px;
+        }
+        .sheets-status.connected { background: rgba(64,145,108,0.12); color: var(--success); }
+        .sheets-status.disconnected { background: rgba(155,35,53,0.10); color: var(--error); }
+        .sheets-status .dot {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: currentColor;
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%,100% { opacity: 1; } 50% { opacity: 0.35; }
+        }
 
         /* =====================================================
            ROUTINE BODY (expanded)
@@ -821,6 +870,11 @@ const WD  = ['Mon','Tue','Wed','Thu','Fri'];
 const ALL  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const WE   = ['Sat','Sun'];
 
+/* ======================================================
+   GOOGLE SHEETS WEBHOOK — hardcoded for this installation
+   ====================================================== */
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx24LEpNWdAmEIk3jvedl75JA56GX3vVVOpNRikxHIIa46WJSnne7p7GvoUsfblJZjEyw/exec';
+
 const ROUTINES = [
   {
     id:'eng-reading', title:'Engineering Reading', icon:'⚡', color:'#2d6a4f', days:WD,
@@ -996,7 +1050,19 @@ function isToday(routineId) {
 }
 function todayRoutines() {
   const t = todayName();
-  return ROUTINES.filter(r => r.days.includes(t));
+  let routines = ROUTINES.filter(r => r.days.includes(t));
+  const order = lsGet('mihwar_routine_order') || [];
+  if (order.length) {
+    routines = routines.slice().sort((a, b) => {
+      const ai = order.indexOf(a.id);
+      const bi = order.indexOf(b.id);
+      if (ai === -1 && bi === -1) return 0;
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  }
+  return routines;
 }
 function lsGet(k)      { try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; } }
 function lsSet(k, v)   { localStorage.setItem(k, JSON.stringify(v)); }
@@ -1140,10 +1206,21 @@ function renderToday() {
 function renderCard(r) {
   const isActive = state.activeRoutineId === r.id;
   const isDone   = isToday(r.id);
+  const routines = todayRoutines();
+  const idx      = routines.findIndex(x => x.id === r.id);
+  const isFirst  = idx === 0;
+  const isLast   = idx === routines.length - 1;
+
   return `
   <div class="routine-card ${isActive ? 'active-card' : ''} ${isDone ? 'done-card' : ''}"
        id="card-${r.id}" style="--card-color:${r.color}">
     <div class="routine-card-header" onclick="toggleCard('${r.id}')">
+      <div class="order-btns">
+        <button class="order-btn" title="Move up"
+          onclick="moveRoutineUp('${r.id}', event)" ${isFirst ? 'disabled' : ''}>▲</button>
+        <button class="order-btn" title="Move down"
+          onclick="moveRoutineDown('${r.id}', event)" ${isLast ? 'disabled' : ''}>▼</button>
+      </div>
       <div class="routine-icon">${r.icon}</div>
       <div class="routine-card-info">
         <div class="routine-card-title">${r.title}</div>
@@ -1153,7 +1230,11 @@ function renderCard(r) {
         </div>
       </div>
       <div class="routine-card-right">
-        <div class="check-circle ${isDone?'done':'pending'}">${isDone?'✓':'○'}</div>
+        <button class="check-circle ${isDone?'done':'pending'}"
+                onclick="event.stopPropagation(); handleCheckClick('${r.id}')"
+                title="${isDone ? 'View / re-write reflection' : 'Mark complete & journal'}">
+          ${isDone?'✓':'○'}
+        </button>
         <span class="expand-chevron">▼</span>
       </div>
     </div>
@@ -1264,6 +1345,36 @@ function toggleCard(id) {
   // re-render list
   const routines = todayRoutines();
   document.getElementById('routines-list').innerHTML = routines.map(r => renderCard(r)).join('');
+}
+
+/* Check-circle direct action */
+function handleCheckClick(id) {
+  openJournal(id);   // pending → write reflection; done → review/re-write
+}
+
+/* Routine ordering — persist to localStorage */
+function moveRoutineUp(id, e) {
+  e.stopPropagation();
+  const routines = todayRoutines();
+  const idx = routines.findIndex(r => r.id === id);
+  if (idx <= 0) return;
+  const newOrder = routines.map(r => r.id);
+  [newOrder[idx - 1], newOrder[idx]] = [newOrder[idx], newOrder[idx - 1]];
+  lsSet('mihwar_routine_order', newOrder);
+  const el = document.getElementById('routines-list');
+  if (el) el.innerHTML = todayRoutines().map(r => renderCard(r)).join('');
+}
+
+function moveRoutineDown(id, e) {
+  e.stopPropagation();
+  const routines = todayRoutines();
+  const idx = routines.findIndex(r => r.id === id);
+  if (idx >= routines.length - 1) return;
+  const newOrder = routines.map(r => r.id);
+  [newOrder[idx + 1], newOrder[idx]] = [newOrder[idx], newOrder[idx + 1]];
+  lsSet('mihwar_routine_order', newOrder);
+  const el = document.getElementById('routines-list');
+  if (el) el.innerHTML = todayRoutines().map(r => renderCard(r)).join('');
 }
 
 function skipSeg(id) {
@@ -1676,15 +1787,23 @@ function saveJournal() {
   };
   lsSet(`journal_${id}_${dateKey()}`, data);
 
-  // Sync to Sheets
-  const sheetsUrl = lsRaw('mihwar_sheets_url');
-  if (sheetsUrl) {
-    fetch(sheetsUrl, { method:'POST', body: JSON.stringify(data) }).catch(()=>{});
-  }
-
   closeJournal();
-  toast('📔 Reflection saved!');
   renderMain();
+
+  // Sync to Google Sheets (hardcoded URL takes priority; Setup field is fallback)
+  const sheetsUrl = SHEETS_URL || lsRaw('mihwar_sheets_url');
+  if (sheetsUrl) {
+    toast('🔄 Syncing to Google Sheets…');
+    fetch(sheetsUrl, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+      .then(res => res.ok ? res.json() : Promise.reject(res.status))
+      .then(() => toast('✅ Reflection saved & synced to Sheets!'))
+      .catch(() => toast('📔 Saved locally — Sheets sync failed. Check URL in Setup.'));
+  } else {
+    toast('📔 Reflection saved locally!');
+  }
 }
 
 /* ======================================================
