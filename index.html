@@ -46,9 +46,6 @@
             --shadow-xl: 0 20px 60px rgba(26,58,42,0.22);
         }
 
-        /* =====================================================
-           RESET & BASE
-           ===================================================== */
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
 
@@ -131,9 +128,6 @@
             width: 100%;
         }
 
-        /* =====================================================
-           VIEW HEADER
-           ===================================================== */
         .view-header { margin-bottom: 26px; }
         .view-title {
             font-family: var(--font-display);
@@ -308,7 +302,6 @@
         .expand-chevron { font-size: 11px; color: var(--text-muted); transition: transform 0.25s; }
         .routine-card.active-card .expand-chevron { transform: rotate(180deg); }
 
-        /* Order buttons */
         .order-btns { display: flex; flex-direction: column; gap: 1px; flex-shrink: 0; }
         .order-btn {
             width: 20px; height: 18px;
@@ -321,24 +314,6 @@
         }
         .order-btn:hover { background: var(--surface-2); color: var(--primary); }
         .order-btn:disabled { opacity: 0.2; cursor: default; }
-
-        /* Sync status badge */
-        .sheets-status {
-            display: inline-flex; align-items: center; gap: 6px;
-            font-size: 11.5px; font-weight: 700;
-            padding: 4px 12px; border-radius: 99px;
-            margin-top: 10px;
-        }
-        .sheets-status.connected { background: rgba(64,145,108,0.12); color: var(--success); }
-        .sheets-status.disconnected { background: rgba(155,35,53,0.10); color: var(--error); }
-        .sheets-status .dot {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: currentColor;
-            animation: pulse-dot 2s ease-in-out infinite;
-        }
-        @keyframes pulse-dot {
-            0%,100% { opacity: 1; } 50% { opacity: 0.35; }
-        }
 
         /* =====================================================
            ROUTINE BODY (expanded)
@@ -420,7 +395,6 @@
             margin-bottom: 20px;
         }
 
-        /* SVG ring */
         .ring-wrap {
             display: inline-flex;
             position: relative;
@@ -492,9 +466,6 @@
         .btn-sm  { padding: 7px 14px; font-size: 11.5px; }
         .btn-lg  { padding: 14px 30px; font-size: 15px; }
 
-        /* =====================================================
-           COMPLETE / SKIP ROW
-           ===================================================== */
         .action-row {
             display: flex; gap: 10px; align-items: center; justify-content: flex-end;
             margin-top: 14px; flex-wrap: wrap;
@@ -514,7 +485,7 @@
         .tag-active { background: var(--gold-bright); color: var(--primary); }
 
         /* =====================================================
-           JOURNAL MODAL
+           JOURNAL MODAL — BOOK STYLE
            ===================================================== */
         .modal-overlay {
             position: fixed; inset: 0;
@@ -532,9 +503,9 @@
         .modal {
             background: var(--surface);
             border-radius: var(--r-xl);
-            max-width: 580px;
+            max-width: 640px;
             width: 100%;
-            max-height: 88vh;
+            max-height: 90vh;
             overflow-y: auto;
             box-shadow: var(--shadow-xl);
             animation: slideUp 0.28s ease;
@@ -544,21 +515,152 @@
             to   { transform: translateY(0); opacity: 1; }
         }
 
+        /* Book-style modal header */
         .modal-header {
-            padding: 28px 28px 20px;
-            border-bottom: 1px solid var(--border-light);
+            background: var(--primary);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='40' cy='40' r='30' fill='none' stroke='%23ffffff' stroke-opacity='0.03' stroke-width='1'/%3E%3Ccircle cx='40' cy='40' r='18' fill='none' stroke='%23ffffff' stroke-opacity='0.03' stroke-width='1'/%3E%3C/svg%3E");
+            padding: 28px 32px 22px;
             position: sticky;
             top: 0;
-            background: var(--surface);
             border-radius: var(--r-xl) var(--r-xl) 0 0;
             z-index: 1;
         }
-        .modal-title    { font-family: var(--font-display); font-size: 25px; color: var(--primary); margin-bottom: 3px; }
-        .modal-subtitle { font-size: 13px; color: var(--text-muted); }
+        .modal-header-inner {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .modal-title    {
+            font-family: var(--font-display);
+            font-size: 26px;
+            color: var(--white);
+            margin-bottom: 4px;
+            line-height: 1.1;
+        }
+        .modal-subtitle {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 300;
+        }
+        .modal-date-badge {
+            background: rgba(212,160,23,0.18);
+            border: 1px solid rgba(212,160,23,0.3);
+            color: var(--gold-bright);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 99px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .modal-header-line {
+            margin-top: 16px;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(212,160,23,0.5), transparent);
+        }
 
-        .modal-body   { padding: 24px 28px; }
-        .modal-footer { padding: 0 28px 26px; display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-body   { padding: 26px 32px; }
+        .modal-footer {
+            padding: 0 32px 26px;
+            display: flex; gap: 10px; justify-content: flex-end;
+            border-top: 1px solid var(--border-light);
+            padding-top: 18px;
+        }
 
+        /* Book section divider */
+        .journal-section-divider {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 16px; margin-top: 24px;
+        }
+        .journal-section-divider:first-child { margin-top: 0; }
+        .journal-section-divider-icon { font-size: 14px; }
+        .journal-section-divider-label {
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+        .journal-section-divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(184,134,11,0.3), transparent);
+        }
+
+        /* Notes field */
+        .journal-field { margin-bottom: 14px; }
+        .journal-field:last-child { margin-bottom: 0; }
+        .journal-field-label {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            letter-spacing: 0.03em;
+        }
+
+        .journal-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--r-sm);
+            font-size: 14px;
+            font-family: var(--font-body);
+            color: var(--text);
+            background: var(--bg);
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .journal-input:focus { border-color: var(--primary-mid); background: var(--white); }
+
+        /* Lined textarea — notebook feel */
+        .journal-lined {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--r-sm);
+            font-size: 14.5px;
+            font-family: var(--font-serif);
+            font-style: italic;
+            color: var(--text);
+            background: repeating-linear-gradient(
+                var(--bg),
+                var(--bg) 27px,
+                rgba(26,58,42,0.07) 27px,
+                rgba(26,58,42,0.07) 28px
+            );
+            line-height: 28px;
+            outline: none;
+            resize: vertical;
+            transition: border-color 0.15s;
+        }
+        .journal-lined:focus { border-color: var(--primary-mid); }
+
+        /* Free thought — big open space */
+        .journal-free-thought {
+            width: 100%;
+            padding: 16px 20px;
+            border: 1.5px solid var(--border);
+            border-left: 4px solid var(--gold);
+            border-radius: var(--r-sm);
+            font-size: 15.5px;
+            font-family: var(--font-serif);
+            font-style: italic;
+            color: var(--text);
+            line-height: 32px;
+            outline: none;
+            resize: vertical;
+            background: repeating-linear-gradient(
+                var(--surface),
+                var(--surface) 31px,
+                rgba(26,58,42,0.06) 31px,
+                rgba(26,58,42,0.06) 32px
+            );
+            transition: border-color 0.15s;
+        }
+        .journal-free-thought:focus { border-color: var(--primary-mid); }
+
+        /* Existing Q&A prompt style */
         .journal-q { margin-bottom: 20px; }
         .journal-q-label {
             font-size: 13px; font-weight: 700; color: var(--primary);
@@ -693,49 +795,198 @@
         .history-q-label { font-size: 10.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 2px; }
         .history-a-text  { font-size: 13.5px; color: var(--text-mid); line-height: 1.55; }
 
+        /* Notes in history */
+        .history-notes-section {
+            background: var(--bg);
+            border-radius: var(--r-sm);
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--gold);
+        }
+        .history-notes-label {
+            font-size: 9.5px;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 6px;
+        }
+        .history-notes-field { margin-bottom: 8px; }
+        .history-notes-field:last-child { margin-bottom: 0; }
+        .history-notes-key { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 2px; }
+        .history-notes-val { font-size: 13.5px; color: var(--text-mid); line-height: 1.55; font-family: var(--font-serif); font-style: italic; }
+
         /* =====================================================
-           SETUP VIEW
+           ANALYTICS VIEW
            ===================================================== */
-        .setup-card {
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .analytics-card {
             background: var(--surface);
             border: 1px solid var(--border-light);
             border-radius: var(--r-lg);
-            padding: 28px;
-            margin-bottom: 18px;
+            padding: 22px;
             box-shadow: var(--shadow-sm);
         }
-        .setup-title {
-            font-family: var(--font-display);
-            font-size: 22px; color: var(--primary);
-            margin-bottom: 5px;
-            display: flex; align-items: center; gap: 10px;
+        .analytics-card.full { grid-column: 1 / -1; }
+        .analytics-card-title {
+            font-family: var(--font-serif);
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .setup-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.65; }
 
-        .code-block {
-            background: #0f1e17;
-            color: #8dd4a8;
-            padding: 16px 18px;
-            border-radius: var(--r-md);
-            font-family: 'Courier New', monospace;
-            font-size: 12px; line-height: 1.75;
-            overflow-x: auto;
-            margin: 14px 0;
+        /* Heatmap */
+        .heatmap-wrap { overflow-x: auto; }
+        .heatmap-labels-row {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            margin-bottom: 3px;
         }
-        .code-comment { color: rgba(255,255,255,0.3); }
+        .heatmap-day-name {
+            font-size: 9px; font-weight: 900; text-align: center;
+            color: var(--text-muted); letter-spacing: 0.05em;
+        }
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+        }
+        .hm-cell {
+            aspect-ratio: 1;
+            border-radius: 3px;
+            background: var(--surface-2);
+            cursor: default;
+            transition: transform 0.12s;
+            position: relative;
+        }
+        .hm-cell:hover { transform: scale(1.2); z-index: 1; }
+        .hm-cell.hm-future { background: transparent; }
+        .hm-cell.hm-0  { background: var(--surface-2); }
+        .hm-cell.hm-1  { background: rgba(26,58,42,0.18); }
+        .hm-cell.hm-2  { background: rgba(26,58,42,0.35); }
+        .hm-cell.hm-3  { background: rgba(26,58,42,0.55); }
+        .hm-cell.hm-4  { background: var(--primary-mid); }
+        .hm-cell.hm-5  { background: var(--primary); }
+        .hm-cell.hm-today { outline: 2px solid var(--gold-bright); }
 
-        .step-list    { list-style: none; counter-reset: steps; }
-        .step-item    { display: flex; gap: 14px; margin-bottom: 18px; }
-        .step-num     {
-            width: 28px; height: 28px; min-width: 28px;
-            background: var(--primary); color: var(--gold-bright);
-            border-radius: 50%;
+        /* Bar chart */
+        .bar-list { display: flex; flex-direction: column; gap: 8px; }
+        .bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bar-label {
+            font-size: 12px;
+            color: var(--text-mid);
+            width: 140px;
+            flex-shrink: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bar-track {
+            flex: 1;
+            height: 20px;
+            background: var(--surface-2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding-left: 7px;
+            font-size: 10px;
+            font-weight: 900;
+            color: rgba(255,255,255,0.9);
+            min-width: 24px;
+            transition: width 0.8s ease;
+        }
+        .bar-count {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            width: 28px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* Reading log */
+        .reading-log { display: flex; flex-direction: column; }
+        .reading-log-entry {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .reading-log-entry:last-child { border-bottom: none; }
+        .reading-log-icon-wrap {
+            width: 38px; height: 38px;
+            border-radius: var(--r-sm);
             display: flex; align-items: center; justify-content: center;
-            font-size: 12px; font-weight: 900;
+            font-size: 18px;
+            background: var(--bg);
+            flex-shrink: 0;
         }
-        .step-title   { font-weight: 700; font-size: 14px; color: var(--primary); margin-bottom: 4px; }
-        .step-desc    { font-size: 13px; color: var(--text-mid); line-height: 1.6; }
+        .reading-log-body { flex: 1; }
+        .reading-log-title { font-size: 14px; font-weight: 700; color: var(--primary); }
+        .reading-log-routine { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+        .reading-log-notes {
+            font-size: 13px; color: var(--text-mid); margin-top: 6px;
+            line-height: 1.55; font-family: var(--font-serif); font-style: italic;
+            display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
 
+        /* Quran tracker */
+        .quran-entries { display: flex; flex-direction: column; gap: 8px; }
+        .quran-entry {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--bg);
+            border-radius: var(--r-sm);
+            padding: 10px 14px;
+            border-left: 3px solid #1b4332;
+        }
+        .quran-entry.mem { border-left-color: #4a2d6a; }
+        .quran-entry-date { font-size: 11px; color: var(--text-muted); width: 80px; flex-shrink: 0; }
+        .quran-entry-info { flex: 1; }
+        .quran-entry-page { font-size: 13.5px; font-weight: 700; color: var(--primary); }
+        .quran-entry-notes { font-size: 12px; color: var(--text-muted); }
+        .quran-entry-type {
+            font-size: 10px; font-weight: 900; letter-spacing: 0.08em;
+            padding: 2px 8px; border-radius: 99px;
+        }
+        .quran-entry-type.read { background: rgba(27,67,50,0.12); color: #1b4332; }
+        .quran-entry-type.mem  { background: rgba(74,45,106,0.12); color: #4a2d6a; }
+
+        /* Settings inside analytics */
+        .settings-card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--r-lg);
+            padding: 22px;
+            margin-bottom: 14px;
+            box-shadow: var(--shadow-sm);
+        }
+        .settings-card-title {
+            font-family: var(--font-display);
+            font-size: 18px; color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .settings-card-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 14px; }
         .input-row { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
         .text-input {
             flex: 1;
@@ -747,6 +998,20 @@
             outline: none; transition: border-color 0.15s;
         }
         .text-input:focus { border-color: var(--primary-mid); }
+
+        /* =====================================================
+           COMPLETE STATE
+           ===================================================== */
+        .complete-state {
+            text-align: center;
+            padding: 22px 0;
+        }
+        .complete-emoji { font-size: 36px; margin-bottom: 10px; }
+        .complete-msg {
+            font-family: var(--font-serif);
+            font-size: 19px; color: var(--primary);
+            margin-bottom: 16px;
+        }
 
         /* =====================================================
            EMPTY STATE
@@ -775,25 +1040,12 @@
             z-index: 300;
             animation: toastIn 0.28s ease;
             display: flex; align-items: center; gap: 8px;
+            max-width: 340px;
         }
         .toast.hidden { display: none; }
         @keyframes toastIn {
             from { transform: translateY(16px) scale(0.95); opacity: 0; }
             to   { transform: translateY(0) scale(1); opacity: 1; }
-        }
-
-        /* =====================================================
-           COMPLETE STATE INSIDE CARD
-           ===================================================== */
-        .complete-state {
-            text-align: center;
-            padding: 22px 0;
-        }
-        .complete-emoji { font-size: 36px; margin-bottom: 10px; }
-        .complete-msg {
-            font-family: var(--font-serif);
-            font-size: 19px; color: var(--primary);
-            margin-bottom: 16px;
         }
 
         /* =====================================================
@@ -806,16 +1058,18 @@
             .nav-tab       { padding: 9px 12px; font-size: 10px; }
             .timer-display { font-size: 42px; }
             .overview-grid { grid-template-columns: 1fr; }
+            .analytics-grid { grid-template-columns: 1fr; }
             .stats-bar     { flex-wrap: wrap; }
             .stat-item     { flex: 0 0 50%; border-right: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); }
+            .modal-body    { padding: 20px 20px; }
+            .modal-header  { padding: 22px 20px 18px; }
+            .modal-footer  { padding: 14px 20px 22px; }
+            .bar-label     { width: 100px; }
         }
     </style>
 </head>
 <body>
 
-<!-- ================================================== -->
-<!-- APP SHELL                                          -->
-<!-- ================================================== -->
 <header class="header">
     <div class="header-top">
         <div class="brand">
@@ -828,28 +1082,32 @@
         </div>
     </div>
     <nav class="nav-tabs">
-        <button class="nav-tab active" data-view="today"   onclick="navigate('today')">Today</button>
-        <button class="nav-tab"        data-view="all"     onclick="navigate('all')">All Routines</button>
-        <button class="nav-tab"        data-view="history" onclick="navigate('history')">History</button>
-        <button class="nav-tab"        data-view="setup"   onclick="navigate('setup')">Setup</button>
+        <button class="nav-tab active" data-view="today"     onclick="navigate('today')">Today</button>
+        <button class="nav-tab"        data-view="all"       onclick="navigate('all')">All Routines</button>
+        <button class="nav-tab"        data-view="history"   onclick="navigate('history')">History</button>
+        <button class="nav-tab"        data-view="analytics" onclick="navigate('analytics')">Analytics</button>
     </nav>
 </header>
 
 <main class="main" id="main"></main>
 
-<!-- ================================================== -->
-<!-- JOURNAL MODAL                                      -->
-<!-- ================================================== -->
+<!-- JOURNAL MODAL -->
 <div class="modal-overlay hidden" id="journal-overlay">
     <div class="modal" id="journal-modal">
         <div class="modal-header">
-            <div class="modal-title"   id="j-title"></div>
-            <div class="modal-subtitle" id="j-sub"></div>
+            <div class="modal-header-inner">
+                <div>
+                    <div class="modal-title" id="j-title"></div>
+                    <div class="modal-subtitle" id="j-sub"></div>
+                </div>
+                <div class="modal-date-badge" id="j-date-badge"></div>
+            </div>
+            <div class="modal-header-line"></div>
         </div>
-        <div class="modal-body"   id="j-body"></div>
+        <div class="modal-body" id="j-body"></div>
         <div class="modal-footer">
             <button class="btn btn-outline btn-sm" onclick="closeJournal()">Skip</button>
-            <button class="btn btn-primary"        onclick="saveJournal()">💾 Save Reflection</button>
+            <button class="btn btn-primary"        onclick="saveJournal()">📔 Save Entry</button>
         </div>
     </div>
 </div>
@@ -857,31 +1115,34 @@
 <!-- TOAST -->
 <div class="toast hidden" id="toast"><span id="toast-text"></span></div>
 
-<!-- ================================================== -->
-<!-- JAVASCRIPT APPLICATION                             -->
-<!-- ================================================== -->
 <script>
 'use strict';
 
 /* ======================================================
-   DATA
+   TELEGRAM CONFIG — Paste your credentials here
    ====================================================== */
+const TELEGRAM_BOT_TOKEN = ''; // e.g. '123456789:AAFxxxxxxx'
+const TELEGRAM_CHAT_ID   = ''; // e.g. '987654321'
+
+/* ======================================================
+   GOOGLE SHEETS WEBHOOK
+   ====================================================== */
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx24LEpNWdAmEIk3jvedl75JA56GX3vVVOpNRikxHIIa46WJSnne7p7GvoUsfblJZjEyw/exec';
+
 const WD  = ['Mon','Tue','Wed','Thu','Fri'];
 const ALL  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const WE   = ['Sat','Sun'];
 
 /* ======================================================
-   GOOGLE SHEETS WEBHOOK — hardcoded for this installation
+   ROUTINES
    ====================================================== */
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbx24LEpNWdAmEIk3jvedl75JA56GX3vVVOpNRikxHIIa46WJSnne7p7GvoUsfblJZjEyw/exec';
-
 const ROUTINES = [
   {
     id:'eng-reading', title:'Engineering Reading', icon:'⚡', color:'#2d6a4f', days:WD,
     segments:[
-      { id:'s1', label:'Engineering Material Reading',   dur:30 },
-      { id:'s2', label:'Office Learning Review',         dur:30 },
-      { id:'s3', label:'Reflection',                     dur:30 },
+      { id:'s1', label:'Engineering Material Reading', dur:30 },
+      { id:'s2', label:'Office Learning Review',       dur:30 },
+      { id:'s3', label:'Reflection',                   dur:30 },
     ],
     prompts:[
       'What key engineering concept did you read about today?',
@@ -895,18 +1156,17 @@ const ROUTINES = [
       { id:'s1', label:'Daily Page Reading (1 of 5 weekly)', dur:20 },
     ],
     prompts:[
-      'Which page or verses did you read today?',
       'What meaning or message touched your heart most?',
+      'How will you carry this into your day?',
     ]
   },
   {
     id:'writing-practice', title:'Writing Practice', icon:'✍️', color:'#4a7c59', days:WD,
     segments:[
-      { id:'s1', label:'Rewriting Passages',             dur:60 },
-      { id:'s2', label:'Study & Reflect on Technique',   dur:30 },
+      { id:'s1', label:'Rewriting Passages',           dur:60 },
+      { id:'s2', label:'Study & Reflect on Technique', dur:30 },
     ],
     prompts:[
-      'Which passage did you rewrite, and from what source?',
       'What specific technique did you focus on studying today?',
       'What is one thing you\'re doing better now than last week?',
     ]
@@ -914,12 +1174,11 @@ const ROUTINES = [
   {
     id:'thought-writing', title:'Thought Writing', icon:'💭', color:'#386641', days:WD,
     segments:[
-      { id:'s1', label:'Write Thoughts Freely',          dur:10 },
-      { id:'s2', label:'Edit for Clarity',               dur:20 },
-      { id:'s3', label:'Study & Reflect — Right/Wrong',  dur:20 },
+      { id:'s1', label:'Write Thoughts Freely',        dur:10 },
+      { id:'s2', label:'Edit for Clarity',             dur:20 },
+      { id:'s3', label:'Study & Reflect — Right/Wrong',dur:20 },
     ],
     prompts:[
-      'What thoughts or ideas did you explore today?',
       'What did your editing process reveal about your thinking?',
       'What did you do well — and what still needs work?',
     ]
@@ -927,28 +1186,28 @@ const ROUTINES = [
   {
     id:'novel-reading', title:'Novel Reading', icon:'📚', color:'#5a7d5a', days:WD,
     segments:[
-      { id:'s1', label:'Novel Reading',                  dur:30 },
+      { id:'s1', label:'Novel Reading', dur:30 },
     ],
     prompts:[
-      'What book are you reading, and where are you in the story?',
       'What scene, character, or idea resonated with you most today?',
+      'How does this connect to your own experience or worldview?',
     ]
   },
   {
     id:'islamic-books', title:'Islamic Books', icon:'🌙', color:'#1a3a5a', days:WD,
     segments:[
-      { id:'s1', label:'Reading',                        dur:30 },
-      { id:'s2', label:'Reflection',                     dur:30 },
+      { id:'s1', label:'Reading',   dur:30 },
+      { id:'s2', label:'Reflection',dur:30 },
     ],
     prompts:[
-      'What Islamic topic or concept did you study today?',
       'How can you apply this teaching practically this week?',
+      'What question did this reading open up for you?',
     ]
   },
   {
     id:'traces-dream', title:'Traces of a Dream', icon:'🌟', color:'#7b5e2a', days:ALL,
     segments:[
-      { id:'s1', label:'Session',                        dur:30 },
+      { id:'s1', label:'Session', dur:30 },
     ],
     prompts:[
       'What did you work on or explore in this session?',
@@ -958,7 +1217,7 @@ const ROUTINES = [
   {
     id:'coding-learning', title:'Coding Learning', icon:'💻', color:'#2d4a6a', days:ALL,
     segments:[
-      { id:'s1', label:'Coding Practice',                dur:10 },
+      { id:'s1', label:'Coding Practice', dur:10 },
     ],
     prompts:[
       'What did you learn or build today?',
@@ -968,11 +1227,10 @@ const ROUTINES = [
   {
     id:'adkhar', title:'Adkhar', icon:'🤲', color:'#3a5c40', days:ALL,
     segments:[
-      { id:'s1', label:'Recitation',                     dur:30 },
-      { id:'s2', label:'Reflection',                     dur:30 },
+      { id:'s1', label:'Recitation', dur:30 },
+      { id:'s2', label:'Reflection', dur:30 },
     ],
     prompts:[
-      'Which adkhar did you recite today?',
       'What feelings or states arose during recitation?',
       'What meanings did you reflect upon most deeply?',
     ]
@@ -980,17 +1238,17 @@ const ROUTINES = [
   {
     id:'quran-memorization', title:'Quran Memorization', icon:'📿', color:'#4a2d6a', days:WE,
     segments:[
-      { id:'s1', label:'Memorize 1 Page',                dur:45 },
+      { id:'s1', label:'Memorize 1 Page', dur:45 },
     ],
     prompts:[
-      'Which page and verses did you memorize today?',
       'How many times did you review — and how does it feel to have it in your heart?',
+      'What will you do to maintain this page in future sessions?',
     ]
   },
   {
     id:'weekly-reflection', title:'Weekly Reflection', icon:'🔄', color:'#5a4a2d', days:WE,
     segments:[
-      { id:'s1', label:'Weekly Reflection',              dur:15 },
+      { id:'s1', label:'Weekly Reflection', dur:15 },
     ],
     prompts:[
       'What went well this week across your routines?',
@@ -1001,11 +1259,10 @@ const ROUTINES = [
   {
     id:'random-reading', title:'Random Reading', icon:'🎲', color:'#5a5a2d', days:ALL,
     segments:[
-      { id:'s1', label:'Reading',                        dur:20 },
-      { id:'s2', label:'Reflection',                     dur:20 },
+      { id:'s1', label:'Reading',    dur:20 },
+      { id:'s2', label:'Reflection', dur:20 },
     ],
     prompts:[
-      'What did you read today — what drew you to it?',
       'What surprised, delighted, or challenged you?',
       'One thing you\'ll carry forward from this reading:',
     ]
@@ -1016,11 +1273,107 @@ const ROUTINES = [
       { id:'s1', label:'Revision from Reflection Notes', dur:30 },
     ],
     prompts:[
-      'Which reflection notes did you revise today?',
       'What connections did you discover between your notes?',
+      'What is clearer now than when you first studied it?',
     ]
   },
 ];
+
+/* ======================================================
+   NOTES CONFIG — per-routine book-like fields
+   ====================================================== */
+const NOTES_CONFIG = {
+  'eng-reading': {
+    sectionLabel: '📖 What I Studied',
+    fields: [
+      { id:'reading-material', label:'Material / Chapter / Topic', placeholder:'e.g. Fluid Mechanics Ch. 5 — Bernoulli\'s Equation', type:'input' },
+      { id:'reading-notes', label:'Study Notes (for revision — write everything important)', placeholder:'Key concepts, formulas, diagrams explained, examples you encountered…', type:'lined', rows:9 },
+    ]
+  },
+  'quran-learning': {
+    sectionLabel: '📖 Quran Reading Log',
+    fields: [
+      { id:'page-read', label:'Page(s) Read Today', placeholder:'e.g. Page 142 – 143', type:'input' },
+      { id:'surah-ayat', label:'Surah & Ayat Range', placeholder:'e.g. Al-Baqarah: Ayah 255 – 260', type:'input' },
+      { id:'quran-notes', label:'Notes on What I Read (tafsir, meanings, reflections)', placeholder:'Write out key meanings, what the verses are about, vocabulary you want to remember…', type:'lined', rows:7 },
+    ]
+  },
+  'writing-practice': {
+    sectionLabel: '✍️ Writing Session',
+    fields: [
+      { id:'source-book', label:'Source / Book / Author', placeholder:'e.g. "The Elements of Style" — Strunk & White, p. 45', type:'input' },
+      { id:'passage-rewritten', label:'Passage I Rewrote Today', placeholder:'Write out the passage you practiced — write it from memory or transcribe with your own hand…', type:'lined', rows:10 },
+    ]
+  },
+  'thought-writing': {
+    sectionLabel: '💭 Free Thought Space',
+    fields: [
+      { id:'free-thoughts', label:'Write Your Thoughts Freely — no editing, no filter, just flow', placeholder:'Let it pour out. What\'s on your mind? What are you thinking about? What ideas are brewing?…', type:'free', rows:14 },
+    ]
+  },
+  'novel-reading': {
+    sectionLabel: '📚 Reading Log',
+    fields: [
+      { id:'book-position', label:'Book & Current Position', placeholder:'e.g. Crime & Punishment — Dostoevsky, Ch. 12, p. 220', type:'input' },
+      { id:'reading-notes', label:'What Happened / What I Read (for revision)', placeholder:'Key scenes, plot developments, character moments, important passages you want to remember…', type:'lined', rows:9 },
+    ]
+  },
+  'islamic-books': {
+    sectionLabel: '🌙 Islamic Study Log',
+    fields: [
+      { id:'book-topic', label:'Book / Topic Studied', placeholder:'e.g. Ibn Qayyim — Madarij al-Salikin, Chapter 3: The Station of Tawbah', type:'input' },
+      { id:'reading-notes', label:'What I Studied (for revision)', placeholder:'Key teachings, proofs from Qur\'an and Sunnah, scholarly points, things to implement…', type:'lined', rows:9 },
+    ]
+  },
+  'adkhar': {
+    sectionLabel: '🤲 Adkhar Record',
+    fields: [
+      { id:'adkhar-list', label:'Adkhar Recited Today', placeholder:'e.g. Subhanallah ×33, Alhamdulillah ×33, Allahu Akbar ×34, Ayatul Kursi, last two ayaat of Baqarah…', type:'lined', rows:4 },
+    ]
+  },
+  'quran-memorization': {
+    sectionLabel: '📿 Memorization Record',
+    fields: [
+      { id:'page-memorized', label:'Page Memorized', placeholder:'e.g. Page 87', type:'input' },
+      { id:'surah-ayat-mem', label:'Surah & Ayat Range', placeholder:'e.g. Al-Kahf: Ayah 1 – 10', type:'input' },
+      { id:'review-count', label:'Number of Reviews (repetitions today)', placeholder:'e.g. 30 times', type:'input' },
+      { id:'written-text', label:'Write Out What You Memorized (reinforces memory)', placeholder:'Write the ayaat from memory — this is your murajaa\'h in writing…', type:'lined', rows:8 },
+    ]
+  },
+  'random-reading': {
+    sectionLabel: '🎲 Reading Notes',
+    fields: [
+      { id:'reading-source', label:'What I Read (title, source, author)', placeholder:'e.g. Article: "The Architecture of the Dome of the Rock" — British Museum Blog', type:'input' },
+      { id:'reading-notes', label:'Key Notes (for revision)', placeholder:'Surprising facts, main arguments, ideas that challenged you, things you want to explore further…', type:'lined', rows:8 },
+    ]
+  },
+  'daily-revision': {
+    sectionLabel: '📝 Revision Log',
+    fields: [
+      { id:'revised-topics', label:'What I Revised Today', placeholder:'e.g. Engineering notes from Mon, Novel summary from Tue, Islamic Books from Wed…', type:'input' },
+      { id:'revision-notes', label:'Revision Summary & Connections', placeholder:'Key points recalled, surprising connections between subjects, things that clicked…', type:'lined', rows:7 },
+    ]
+  },
+  'traces-dream': {
+    sectionLabel: '🌟 Session Notes',
+    fields: [
+      { id:'session-notes', label:'What I Worked On', placeholder:'Describe what you explored, built, or thought about in this session…', type:'lined', rows:5 },
+    ]
+  },
+  'coding-learning': {
+    sectionLabel: '💻 Coding Log',
+    fields: [
+      { id:'topic-built', label:'Topic / Project / Language', placeholder:'e.g. JavaScript — Promises and async/await, built a simple fetch wrapper', type:'input' },
+      { id:'code-notes', label:'What I Learned (for revision)', placeholder:'Key concepts, code patterns, errors you debugged, resources to revisit…', type:'lined', rows:6 },
+    ]
+  },
+  'weekly-reflection': {
+    sectionLabel: '🔄 Weekly Overview',
+    fields: [
+      { id:'week-summary', label:'This Week in Summary', placeholder:'Quick bullet of each routine — what happened this week? Highs and lows…', type:'lined', rows:6 },
+    ]
+  },
+};
 
 /* ======================================================
    STATE
@@ -1028,14 +1381,14 @@ const ROUTINES = [
 const state = {
   view: 'today',
   activeRoutineId: null,
-  timers: {},          // { routineId → { segIdx, secs, running, doneParts: Set } }
+  timers: {},
   journalRoutineId: null,
   apiKey: localStorage.getItem('mihwar_api_key') || '',
 };
-const intervals = {};   // { routineId → intervalId }
+const intervals = {};
 
 /* ======================================================
-   HELPERS — DATE / ROUTING
+   HELPERS
    ====================================================== */
 function todayName() {
   return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][new Date().getDay()];
@@ -1054,8 +1407,7 @@ function todayRoutines() {
   const order = lsGet('mihwar_routine_order') || [];
   if (order.length) {
     routines = routines.slice().sort((a, b) => {
-      const ai = order.indexOf(a.id);
-      const bi = order.indexOf(b.id);
+      const ai = order.indexOf(a.id), bi = order.indexOf(b.id);
       if (ai === -1 && bi === -1) return 0;
       if (ai === -1) return 1;
       if (bi === -1) return -1;
@@ -1068,6 +1420,62 @@ function lsGet(k)      { try { return JSON.parse(localStorage.getItem(k)); } cat
 function lsSet(k, v)   { localStorage.setItem(k, JSON.stringify(v)); }
 function lsRaw(k)      { return localStorage.getItem(k); }
 function lsSetRaw(k,v) { localStorage.setItem(k, v); }
+
+/* ======================================================
+   TELEGRAM MILESTONE ALERTS
+   ====================================================== */
+async function sendTelegramAlert(msg) {
+  const token  = TELEGRAM_BOT_TOKEN || lsRaw('mihwar_tg_token');
+  const chatId = TELEGRAM_CHAT_ID   || lsRaw('mihwar_tg_chatid');
+  if (!token || !chatId) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' })
+    });
+  } catch(e) { console.warn('Telegram alert failed', e); }
+}
+
+function checkMilestones(savedRoutineId) {
+  const r = routineById(savedRoutineId);
+  const allEntries_ = allEntries();
+  const streak      = calcStreak(allEntries_);
+
+  // 1. Daily completion — all today's routines done
+  const todayList = todayRoutines();
+  const doneToday = todayList.filter(rt => isToday(rt.id)).length;
+  if (doneToday === todayList.length && todayList.length > 0) {
+    const d = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+    sendTelegramAlert(
+      `🌿 *Mihwar — All Done!*\n\nYou completed every routine for *${d}*. بارك الله فيك\n\n` +
+      `${todayList.map(rt => `${rt.icon} ${rt.title}`).join('\n')}\n\n_محور_`
+    );
+    toast('🎉 All routines complete! Telegram notified.');
+  }
+
+  // 2. Streak milestones
+  const streakMilestones = [3, 7, 14, 21, 30, 60, 100];
+  if (streakMilestones.includes(streak)) {
+    sendTelegramAlert(
+      `🔥 *Mihwar — Streak Milestone!*\n\n` +
+      `You've maintained your practice for *${streak} days* in a row! SubhanAllah.\n\n` +
+      `_Keep going — consistency is the key to mastery._\n_محور_`
+    );
+  }
+
+  // 3. Per-routine milestone (10th, 25th, 50th, 100th session)
+  const routineEntries = allEntries_.filter(e => e.routineId === savedRoutineId);
+  const count = routineEntries.length;
+  const sessionMilestones = [10, 25, 50, 100, 200];
+  if (sessionMilestones.includes(count)) {
+    sendTelegramAlert(
+      `⭐ *Mihwar — Routine Milestone!*\n\n` +
+      `${r.icon} *${r.title}* — session #${count} complete!\n\n` +
+      `${count} sessions of consistent practice. That's real dedication.\n_محور_`
+    );
+  }
+}
 
 /* ======================================================
    TIMER
@@ -1150,7 +1558,6 @@ function fmtTime(secs) {
    ====================================================== */
 function navigate(view) {
   state.view = view;
-  // pause all timers when leaving Today
   if (view !== 'today') {
     Object.keys(intervals).forEach(id => { clearInterval(intervals[id]); });
     Object.values(state.timers).forEach(t => t.running = false);
@@ -1164,10 +1571,10 @@ function navigate(view) {
 function renderMain() {
   const el = document.getElementById('main');
   switch(state.view) {
-    case 'today':   el.innerHTML = renderToday();   break;
-    case 'all':     el.innerHTML = renderAll();     break;
-    case 'history': el.innerHTML = renderHistory(); break;
-    case 'setup':   el.innerHTML = renderSetup();   break;
+    case 'today':     el.innerHTML = renderToday();     break;
+    case 'all':       el.innerHTML = renderAll();       break;
+    case 'history':   el.innerHTML = renderHistory();   break;
+    case 'analytics': el.innerHTML = renderAnalytics(); break;
   }
 }
 
@@ -1175,12 +1582,12 @@ function renderMain() {
    TODAY VIEW
    ====================================================== */
 function renderToday() {
-  const routines   = todayRoutines();
-  const completed  = routines.filter(r => isToday(r.id)).length;
-  const totalMins  = routines.reduce((s,r) => s + totalDur(r), 0);
-  const pct        = routines.length ? Math.round(completed / routines.length * 100) : 0;
-  const t          = todayName();
-  const isWE       = ['Sat','Sun'].includes(t);
+  const routines  = todayRoutines();
+  const completed = routines.filter(r => isToday(r.id)).length;
+  const totalMins = routines.reduce((s,r) => s + totalDur(r), 0);
+  const pct       = routines.length ? Math.round(completed / routines.length * 100) : 0;
+  const t         = todayName();
+  const isWE      = ['Sat','Sun'].includes(t);
 
   return `
   <div class="view-header">
@@ -1232,7 +1639,7 @@ function renderCard(r) {
       <div class="routine-card-right">
         <button class="check-circle ${isDone?'done':'pending'}"
                 onclick="event.stopPropagation(); handleCheckClick('${r.id}')"
-                title="${isDone ? 'View / re-write reflection' : 'Mark complete & journal'}">
+                title="${isDone ? 'View / re-write entry' : 'Mark complete & journal'}">
           ${isDone?'✓':'○'}
         </button>
         <span class="expand-chevron">▼</span>
@@ -1273,7 +1680,7 @@ function renderBody(r) {
     <div class="complete-state">
       <div class="complete-emoji">🎉</div>
       <div class="complete-msg">All segments complete!</div>
-      <button class="btn btn-primary btn-lg" onclick="openJournal('${r.id}')">📔 Write Reflection</button>
+      <button class="btn btn-primary btn-lg" onclick="openJournal('${r.id}')">📔 Write Entry</button>
     </div>` : ''}
 
   ${done ? `
@@ -1289,12 +1696,12 @@ function renderBody(r) {
 }
 
 function renderTimerInner(r, t) {
-  const seg      = r.segments[t.segIdx];
-  const total    = seg.dur * 60;
-  const pct      = total > 0 ? t.secs / total : 0;
-  const R        = 72;
-  const circ     = 2 * Math.PI * R;
-  const offset   = circ * (1 - pct);
+  const seg    = r.segments[t.segIdx];
+  const total  = seg.dur * 60;
+  const pct    = total > 0 ? t.secs / total : 0;
+  const R      = 72;
+  const circ   = 2 * Math.PI * R;
+  const offset = circ * (1 - pct);
   return `
   <div class="timer-eyebrow">Current Segment</div>
   <div class="timer-seg-name">${seg.label}</div>
@@ -1319,7 +1726,6 @@ function renderTimerInner(r, t) {
   </div>`;
 }
 
-/* patch only the timer block without re-rendering the whole body */
 function patchTimerBlock(id) {
   const el = document.getElementById(`timer-${id}`);
   if (!el) return;
@@ -1328,7 +1734,6 @@ function patchTimerBlock(id) {
   if (t) el.innerHTML = renderTimerInner(r, t);
 }
 
-/* patch only the timer block and segments list */
 function refreshBody(id) {
   const el = document.getElementById(`body-${id}`);
   if (!el) return;
@@ -1342,17 +1747,12 @@ function toggleCard(id) {
     if (state.activeRoutineId) pauseTimer(state.activeRoutineId);
     state.activeRoutineId = id;
   }
-  // re-render list
   const routines = todayRoutines();
   document.getElementById('routines-list').innerHTML = routines.map(r => renderCard(r)).join('');
 }
 
-/* Check-circle direct action */
-function handleCheckClick(id) {
-  openJournal(id);   // pending → write reflection; done → review/re-write
-}
+function handleCheckClick(id) { openJournal(id); }
 
-/* Routine ordering — persist to localStorage */
 function moveRoutineUp(id, e) {
   e.stopPropagation();
   const routines = todayRoutines();
@@ -1394,7 +1794,7 @@ function skipSeg(id) {
    ALL ROUTINES VIEW
    ====================================================== */
 function renderAll() {
-  const t = todayName();
+  const t   = todayName();
   const wd  = ROUTINES.filter(r => r.days.length === 5);
   const all = ROUTINES.filter(r => r.days.length === 7);
   const we  = ROUTINES.filter(r => r.days.length === 2);
@@ -1406,7 +1806,7 @@ function renderAll() {
   return `
   <div class="view-header">
     <div class="view-title">All Routines</div>
-    <div class="view-subtitle">13 practices across your week — ${ROUTINES.reduce((s,r)=>s+totalDur(r),0)} possible minutes</div>
+    <div class="view-subtitle">${ROUTINES.length} practices across your week · ${ROUTINES.reduce((s,r)=>s+totalDur(r),0)} possible minutes</div>
   </div>
 
   <div class="section-label">Weekday Routines · Mon–Fri</div>
@@ -1471,8 +1871,8 @@ function renderHistory() {
     </div>
     <div class="empty-state">
       <div class="empty-icon">📔</div>
-      <div class="empty-title">No reflections yet</div>
-      <div class="empty-desc">Complete routines and write reflections.<br>They will appear here.</div>
+      <div class="empty-title">No entries yet</div>
+      <div class="empty-desc">Complete routines and write entries.<br>They will appear here for revision.</div>
     </div>`;
 
   const grouped = {};
@@ -1485,11 +1885,11 @@ function renderHistory() {
   return `
   <div class="view-header">
     <div class="view-title">History</div>
-    <div class="view-subtitle">${entries.length} reflections across ${Object.keys(grouped).length} days</div>
+    <div class="view-subtitle">${entries.length} entries across ${Object.keys(grouped).length} days</div>
   </div>
 
   <div class="stats-bar" style="margin-bottom:24px">
-    <div class="stat-item"><div class="stat-value">${entries.length}</div><div class="stat-label">Reflections</div></div>
+    <div class="stat-item"><div class="stat-value">${entries.length}</div><div class="stat-label">Entries</div></div>
     <div class="stat-item"><div class="stat-value">${Object.keys(grouped).length}</div><div class="stat-label">Days Active</div></div>
     <div class="stat-item"><div class="stat-value">${streak}</div><div class="stat-label">Day Streak</div></div>
     <div class="stat-item"><div class="stat-value">${ROUTINES.length}</div><div class="stat-label">Routines</div></div>
@@ -1510,6 +1910,24 @@ function histEntry(e) {
   const analysisKey = `analysis_${e.key}`;
   const analysis    = lsRaw(analysisKey);
   const hasKey      = !!state.apiKey;
+  const nc          = NOTES_CONFIG[e.routineId];
+
+  // Build notes display
+  let notesHtml = '';
+  if (nc && e.notes && Object.keys(e.notes).length) {
+    const noteFields = nc.fields.filter(f => e.notes[f.id] && e.notes[f.id].trim());
+    if (noteFields.length) {
+      notesHtml = `
+      <div class="history-notes-section">
+        <div class="history-notes-label">${nc.sectionLabel || '📖 Notes'}</div>
+        ${noteFields.map(f => `
+        <div class="history-notes-field">
+          <div class="history-notes-key">${f.label}</div>
+          <div class="history-notes-val">${esc(e.notes[f.id])}</div>
+        </div>`).join('')}
+      </div>`;
+    }
+  }
 
   return `
   <div class="history-entry" style="--card-color:${e.routineColor||'#1a3a2a'}">
@@ -1518,6 +1936,7 @@ function histEntry(e) {
       <span>${e.routineTitle}</span>
       <span class="history-time">${fmtClock(e.completedAt)}</span>
     </div>
+    ${notesHtml}
     ${(e.prompts||[]).map((p,i) => e.responses && e.responses[i] ? `
     <div class="history-qa">
       <div class="history-q-label">${p}</div>
@@ -1542,188 +1961,197 @@ function histEntry(e) {
 
 function calcStreak(entries) {
   const dates = [...new Set(entries.map(e => e.dateKey))].sort().reverse();
+  if (!dates.length) return 0;
   let s = 1;
   for (let i = 1; i < dates.length; i++) {
     const diff = (new Date(dates[i-1]) - new Date(dates[i])) / 86400000;
     if (diff === 1) s++; else break;
   }
-  return dates.length ? s : 0;
+  return s;
 }
 
 /* ======================================================
-   SETUP VIEW
+   ANALYTICS VIEW
    ====================================================== */
-function renderSetup() {
+function renderAnalytics() {
+  const entries  = allEntries();
+  const streak   = calcStreak(entries);
+  const daysSet  = new Set(entries.map(e => e.dateKey));
+  const totalHrs = Math.round(entries.reduce((s, e) => {
+    const r = routineById(e.routineId);
+    return s + (r ? totalDur(r) : 0);
+  }, 0) / 60 * 10) / 10;
+
+  // Per-routine counts
+  const counts = {};
+  ROUTINES.forEach(r => counts[r.id] = 0);
+  entries.forEach(e => { if (counts[e.routineId] !== undefined) counts[e.routineId]++; });
+  const maxCount = Math.max(...Object.values(counts), 1);
+
+  // Reading log entries (routines with reading notes)
+  const readingIds = ['eng-reading','novel-reading','islamic-books','random-reading','daily-revision'];
+  const readingLog = entries.filter(e => readingIds.includes(e.routineId) && e.notes);
+
+  // Quran log
+  const quranLog = entries.filter(e => ['quran-learning','quran-memorization'].includes(e.routineId));
+
+  // Heatmap — last 63 days (9 weeks)
+  const heatmap = buildHeatmap(entries);
+
+  // Telegram config
+  const tgToken  = lsRaw('mihwar_tg_token')  || '';
+  const tgChatId = lsRaw('mihwar_tg_chatid') || '';
+  const apiKey   = state.apiKey || '';
+
   return `
   <div class="view-header">
-    <div class="view-title">Setup &amp; Integration</div>
-    <div class="view-subtitle">Connect Claude AI · Google Sheets · Telegram</div>
+    <div class="view-title">Analytics</div>
+    <div class="view-subtitle">Your growth, at a glance</div>
   </div>
 
-  <!-- Claude AI -->
-  <div class="setup-card">
-    <div class="setup-title">🤖 Claude AI Reflection Analysis</div>
-    <div class="setup-desc">
-      Add your Anthropic API key to unlock AI-powered insights. After completing a routine, Claude reads your journal entries and offers thoughtful reflections to deepen your practice. Your key is stored only in your browser's local storage.
+  <div class="stats-bar" style="margin-bottom:20px">
+    <div class="stat-item"><div class="stat-value">${entries.length}</div><div class="stat-label">Sessions</div></div>
+    <div class="stat-item"><div class="stat-value">${daysSet.size}</div><div class="stat-label">Days Active</div></div>
+    <div class="stat-item"><div class="stat-value">${streak}</div><div class="stat-label">Streak 🔥</div></div>
+    <div class="stat-item"><div class="stat-value">${totalHrs}h</div><div class="stat-label">Time Logged</div></div>
+  </div>
+
+  <div class="analytics-grid">
+
+    <!-- Heatmap -->
+    <div class="analytics-card full">
+      <div class="analytics-card-title">📅 Activity Heatmap — Last 9 Weeks</div>
+      ${heatmap}
+      <div style="display:flex;align-items:center;gap:6px;margin-top:10px;font-size:11px;color:var(--text-muted)">
+        <span>Less</span>
+        <div style="width:14px;height:14px;border-radius:2px;background:var(--surface-2)"></div>
+        <div style="width:14px;height:14px;border-radius:2px;background:rgba(26,58,42,0.18)"></div>
+        <div style="width:14px;height:14px;border-radius:2px;background:rgba(26,58,42,0.35)"></div>
+        <div style="width:14px;height:14px;border-radius:2px;background:var(--primary-mid)"></div>
+        <div style="width:14px;height:14px;border-radius:2px;background:var(--primary)"></div>
+        <span>More</span>
+      </div>
     </div>
+
+    <!-- Per-routine bar chart -->
+    <div class="analytics-card full">
+      <div class="analytics-card-title">📊 Sessions per Routine</div>
+      <div class="bar-list">
+        ${ROUTINES.map(r => {
+          const c = counts[r.id] || 0;
+          const w = Math.round(c / maxCount * 100);
+          return `
+          <div class="bar-row">
+            <div class="bar-label">${r.icon} ${r.title}</div>
+            <div class="bar-track">
+              <div class="bar-fill" style="width:${w}%;background:${r.color}">${c > 0 ? c : ''}</div>
+            </div>
+            <div class="bar-count">${c}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- Reading Log -->
+    <div class="analytics-card full">
+      <div class="analytics-card-title">📚 Reading Log</div>
+      ${readingLog.length ? `
+      <div class="reading-log">
+        ${readingLog.slice(0, 20).map(e => {
+          const r = routineById(e.routineId);
+          if (!r) return '';
+          const nc = NOTES_CONFIG[e.routineId];
+          const titleField = e.notes && nc ? (
+            e.notes['reading-material'] || e.notes['book-position'] ||
+            e.notes['book-topic'] || e.notes['reading-source'] ||
+            e.notes['revised-topics'] || ''
+          ) : '';
+          const notesField = e.notes && nc ? (
+            e.notes['reading-notes'] || e.notes['revision-notes'] || ''
+          ) : '';
+          return `
+          <div class="reading-log-entry">
+            <div class="reading-log-icon-wrap">${r.icon}</div>
+            <div class="reading-log-body">
+              <div class="reading-log-title">${esc(titleField || r.title)}</div>
+              <div class="reading-log-routine">${r.title} · ${fmtDate(e.dateKey)}</div>
+              ${notesField ? `<div class="reading-log-notes">${esc(notesField)}</div>` : ''}
+            </div>
+          </div>`;
+        }).join('')}
+        ${readingLog.length > 20 ? `<div style="text-align:center;padding:12px;font-size:13px;color:var(--text-muted)">${readingLog.length - 20} more entries in History</div>` : ''}
+      </div>` : `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:14px">No reading entries yet — start logging what you read!</div>`}
+    </div>
+
+    <!-- Quran Tracker -->
+    <div class="analytics-card full">
+      <div class="analytics-card-title">📿 Quran Tracker</div>
+      ${quranLog.length ? `
+      <div class="quran-entries">
+        ${quranLog.slice(0, 15).map(e => {
+          const isMem = e.routineId === 'quran-memorization';
+          const page  = e.notes ? (e.notes['page-memorized'] || e.notes['page-read'] || '') : '';
+          const surah = e.notes ? (e.notes['surah-ayat-mem'] || e.notes['surah-ayat'] || '') : '';
+          const notes = e.notes ? (e.notes['quran-notes'] || e.notes['written-text'] || '') : '';
+          return `
+          <div class="quran-entry ${isMem ? 'mem' : ''}">
+            <div class="quran-entry-date">${e.dateKey}</div>
+            <div class="quran-entry-info">
+              <div class="quran-entry-page">${esc(page || (isMem?'Memorization':'Reading'))} ${surah ? '— ' + esc(surah) : ''}</div>
+              ${notes ? `<div class="quran-entry-notes">${esc(notes.slice(0,80))}${notes.length>80?'…':''}</div>` : ''}
+            </div>
+            <span class="quran-entry-type ${isMem?'mem':'read'}">${isMem?'Memorized':'Read'}</span>
+          </div>`;
+        }).join('')}
+        ${quranLog.length > 15 ? `<div style="text-align:center;padding:10px;font-size:13px;color:var(--text-muted)">${quranLog.length - 15} more — see History for full log</div>` : ''}
+      </div>` : `<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:14px">No Quran entries yet — log pages when you complete Quran routines.</div>`}
+    </div>
+
+  </div>
+
+  <!-- Settings -->
+  <div class="section-label" style="margin-top:8px">Settings & Integrations</div>
+
+  <div class="settings-card">
+    <div class="settings-card-title">📱 Telegram Milestone Alerts</div>
+    <div class="settings-card-desc">Receive a Telegram message when you complete all daily routines, hit streak milestones (3, 7, 14, 30 days), or reach session milestones (10th, 25th, 50th session for a routine).</div>
+    <div style="margin-bottom:10px">
+      <div style="font-size:11.5px;font-weight:700;color:var(--text-muted);margin-bottom:5px">Bot Token</div>
+      <div class="input-row">
+        <input type="password" class="text-input" id="tg-token"
+               placeholder="123456789:AAFxxxxxxxxxxxxxxxx"
+               value="${esc(tgToken)}"/>
+        <button class="btn btn-primary" onclick="saveTgConfig()">Save</button>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11.5px;font-weight:700;color:var(--text-muted);margin-bottom:5px">Your Chat ID</div>
+      <input type="text" class="text-input" id="tg-chatid"
+             placeholder="987654321"
+             value="${esc(tgChatId)}" style="width:100%"/>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:var(--text-muted)">
+      To get your Chat ID: message your bot, then visit <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> and look for the <code>chat.id</code> field.
+    </div>
+    ${(tgToken && tgChatId) ? `
+    <div style="margin-top:10px">
+      <button class="btn btn-outline btn-sm" onclick="testTelegram()">📤 Send Test Message</button>
+    </div>` : ''}
+  </div>
+
+  <div class="settings-card">
+    <div class="settings-card-title">🤖 Claude AI Reflection Analysis</div>
+    <div class="settings-card-desc">Add your Anthropic API key to unlock AI-powered insights after completing each routine. Stored only in your browser.</div>
     <div class="input-row">
       <input type="password" class="text-input" id="api-key-input"
              placeholder="sk-ant-api03-..." value="${esc(state.apiKey)}"/>
       <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
     </div>
-    <div style="margin-top:9px;font-size:12px;color:var(--text-muted)">
-      Get your key at <strong>console.anthropic.com</strong> — usage is billed per API call.
-    </div>
   </div>
 
-  <!-- Google Sheets -->
-  <div class="setup-card">
-    <div class="setup-title">📊 Google Sheets Backend</div>
-    <div class="setup-desc">
-      Use Google Sheets as a persistent database for your reflection data. Every saved journal entry will sync automatically via a lightweight Apps Script webhook.
-    </div>
-    <ol class="step-list">
-      <li class="step-item">
-        <div class="step-num">1</div>
-        <div>
-          <div class="step-title">Create a Google Sheet</div>
-          <div class="step-desc">Go to sheets.google.com → new sheet → name it <strong>Mihwar Routines</strong>. Add row 1 headers: Date, Routine, Icon, Prompts, Responses, Timestamp.</div>
-        </div>
-      </li>
-      <li class="step-item">
-        <div class="step-num">2</div>
-        <div>
-          <div class="step-title">Open Apps Script</div>
-          <div class="step-desc">Extensions → Apps Script. Replace all code with:</div>
-          <div class="code-block"><span class="code-comment">// Mihwar → Google Sheets webhook</span>
-function doPost(e) {
-  var sheet = SpreadsheetApp
-    .getActiveSpreadsheet()
-    .getSheetByName('Mihwar Routines');
-  var d = JSON.parse(e.postData.contents);
-  sheet.appendRow([
-    d.dateKey,
-    d.routineTitle,
-    d.routineIcon,
-    (d.prompts  || []).join(' | '),
-    (d.responses|| []).join(' | '),
-    new Date().toISOString()
-  ]);
-  return ContentService
-    .createTextOutput(JSON.stringify({status:'ok'}))
-    .setMimeType(ContentService.MimeType.JSON);
-}</div>
-        </div>
-      </li>
-      <li class="step-item">
-        <div class="step-num">3</div>
-        <div>
-          <div class="step-title">Deploy as Web App</div>
-          <div class="step-desc">Deploy → New deployment → Web App. Execute as <em>Me</em>, access <em>Anyone</em>. Copy the Web App URL.</div>
-        </div>
-      </li>
-      <li class="step-item">
-        <div class="step-num">4</div>
-        <div>
-          <div class="step-title">Paste Web App URL here</div>
-          <div class="step-desc">Mihwar will POST each saved journal entry to your Sheet automatically.</div>
-          <div class="input-row">
-            <input type="text" class="text-input" id="sheets-url"
-                   placeholder="https://script.google.com/macros/s/..."
-                   value="${esc(lsRaw('mihwar_sheets_url')||'')}"/>
-            <button class="btn btn-primary" onclick="saveSheetsUrl()">Save</button>
-          </div>
-        </div>
-      </li>
-    </ol>
-  </div>
-
-  <!-- Telegram -->
-  <div class="setup-card">
-    <div class="setup-title">📱 Telegram Daily Reminders</div>
-    <div class="setup-desc">
-      A time-triggered Apps Script function sends you a morning message listing today's routines with emoji and durations.
-    </div>
-    <ol class="step-list">
-      <li class="step-item">
-        <div class="step-num">1</div>
-        <div>
-          <div class="step-title">Create a Telegram Bot</div>
-          <div class="step-desc">Message <strong>@BotFather</strong> on Telegram → /newbot → follow prompts → copy the Bot Token.</div>
-        </div>
-      </li>
-      <li class="step-item">
-        <div class="step-num">2</div>
-        <div>
-          <div class="step-title">Get Your Chat ID</div>
-          <div class="step-desc">Send your bot any message, then visit: <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code>. Your chat ID is in the "chat" object.</div>
-        </div>
-      </li>
-      <li class="step-item">
-        <div class="step-num">3</div>
-        <div>
-          <div class="step-title">Add to Apps Script</div>
-          <div class="step-desc">Add this function alongside the doPost function above:</div>
-          <div class="code-block"><span class="code-comment">// Add your credentials here</span>
-var TG_TOKEN  = 'YOUR_BOT_TOKEN';
-var TG_CHATID = 'YOUR_CHAT_ID';
-
-function sendDailyReminder() {
-  var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  var day  = days[new Date().getDay()];
-  var isWD = !['Sat','Sun'].includes(day);
-
-  var msg = '🌿 *Mihwar — Daily Practice*\n\n';
-  msg += '📅 *' + day + '* — ' + new Date().toDateString() + '\n\n';
-
-  if (isWD) {
-    msg += '⚡ Engineering Reading · 90 min\n';
-    msg += '📖 Quran Learning · 20 min\n';
-    msg += '✍️ Writing Practice · 90 min\n';
-    msg += '💭 Thought Writing · 50 min\n';
-    msg += '📚 Novel Reading · 30 min\n';
-    msg += '🌙 Islamic Books · 60 min\n';
-    msg += '📝 Daily Revision · 30 min\n';
-  }
-  msg += '🌟 Traces of a Dream · 30 min\n';
-  msg += '💻 Coding Learning · 10 min\n';
-  msg += '🤲 Adkhar · 60 min\n';
-  msg += '🎲 Random Reading · 40 min\n';
-  if (!isWD) {
-    msg += '📿 Quran Memorization · 45 min\n';
-    msg += '🔄 Weekly Reflection · 15 min\n';
-  }
-  msg += '\n_بسم الله الرحمن الرحيم_';
-
-  UrlFetchApp.fetch(
-    'https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage',
-    {
-      method: 'post',
-      contentType: 'application/json',
-      payload: JSON.stringify({
-        chat_id: TG_CHATID,
-        text: msg,
-        parse_mode: 'Markdown'
-      })
-    }
-  );
-}</div>
-        </div>
-      </li>
-      <li class="step-item">
-        <div class="step-num">4</div>
-        <div>
-          <div class="step-title">Set a Daily Time Trigger</div>
-          <div class="step-desc">Apps Script → Triggers (clock icon) → Add Trigger → <strong>sendDailyReminder</strong> → Time-driven → Day timer → choose your morning hour (e.g. 7–8 am).</div>
-        </div>
-      </li>
-    </ol>
-  </div>
-
-  <!-- Data Management -->
-  <div class="setup-card">
-    <div class="setup-title">⬇ Data Management</div>
-    <div class="setup-desc">Export all reflection history as JSON, or clear everything to start fresh.</div>
+  <div class="settings-card">
+    <div class="settings-card-title">⬇ Data Management</div>
+    <div class="settings-card-desc">Export all reflection history as JSON, or clear everything to start fresh.</div>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
       <button class="btn btn-outline" onclick="exportData()">Export All Data (JSON)</button>
       <button class="btn btn-danger"  onclick="clearData()">Clear All Data</button>
@@ -1731,33 +2159,119 @@ function sendDailyReminder() {
   </div>`;
 }
 
+function buildHeatmap(entries) {
+  // Build map of dateKey → count
+  const countMap = {};
+  entries.forEach(e => {
+    countMap[e.dateKey] = (countMap[e.dateKey] || 0) + 1;
+  });
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+  const todayKey = dateKey();
+
+  // Find start: 62 days ago, snapped to Monday
+  const start = new Date(today);
+  start.setDate(start.getDate() - 62);
+  const startDay = start.getDay(); // 0=Sun
+  start.setDate(start.getDate() - (startDay === 0 ? 6 : startDay - 1)); // back to Monday
+
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let cells = '';
+  const cur = new Date(start);
+
+  while (cur <= today) {
+    const dk = cur.toISOString().split('T')[0];
+    const cnt = countMap[dk] || 0;
+    const isToday_ = dk === todayKey;
+    const isFuture = cur > today;
+    const level = isFuture ? 'hm-future' : (cnt === 0 ? 'hm-0' : cnt <= 1 ? 'hm-1' : cnt <= 2 ? 'hm-2' : cnt <= 4 ? 'hm-3' : cnt <= 6 ? 'hm-4' : 'hm-5');
+    const title = `${dk}: ${cnt} session${cnt !== 1 ? 's' : ''}`;
+    cells += `<div class="hm-cell ${level} ${isToday_ ? 'hm-today' : ''}" title="${title}"></div>`;
+    cur.setDate(cur.getDate() + 1);
+  }
+
+  return `
+  <div class="heatmap-wrap">
+    <div class="heatmap-labels-row">
+      ${days.map(d => `<div class="heatmap-day-name">${d}</div>`).join('')}
+    </div>
+    <div class="heatmap-grid">${cells}</div>
+  </div>`;
+}
+
 /* ======================================================
-   JOURNAL MODAL
+   JOURNAL MODAL — BOOK STYLE
    ====================================================== */
 function openJournal(id) {
   state.journalRoutineId = id;
   const r     = routineById(id);
   const saved = lsGet(`journal_${id}_${dateKey()}`);
+  const nc    = NOTES_CONFIG[id];
+  const now   = new Date();
 
   document.getElementById('j-title').textContent = `${r.icon} ${r.title}`;
-  document.getElementById('j-sub').textContent   =
-    new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+  document.getElementById('j-sub').textContent   = 'Daily Entry';
+  document.getElementById('j-date-badge').textContent =
+    now.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
 
-  document.getElementById('j-body').innerHTML = `
-    ${r.prompts.map((p, i) => `
-    <div class="journal-q">
-      <div class="journal-q-label">${p}</div>
-      <textarea class="journal-textarea" id="jq${i}" rows="3"
-                placeholder="Write your reflection...">${esc(saved && saved.responses ? saved.responses[i]||'' : '')}</textarea>
-    </div>`).join('')}
-    ${state.apiKey ? `
-    <div>
-      <button class="btn btn-outline btn-sm" id="ai-btn" onclick="analyzeModal('${id}')">
-        🤖 Analyze with AI
-      </button>
+  // Build notes section
+  let notesSection = '';
+  if (nc) {
+    notesSection = `
+    <div class="journal-section-divider">
+      <span class="journal-section-divider-icon">${nc.sectionLabel.split(' ')[0]}</span>
+      <span class="journal-section-divider-label">${nc.sectionLabel.replace(/^\S+\s/,'')}</span>
+      <span class="journal-section-divider-line"></span>
     </div>
-    <div id="ai-area"></div>` : ''}`;
+    ${nc.fields.map(f => {
+      const savedVal = saved && saved.notes ? (saved.notes[f.id] || '') : '';
+      if (f.type === 'input') {
+        return `
+        <div class="journal-field">
+          <div class="journal-field-label">${f.label}</div>
+          <input class="journal-input" id="note-${f.id}" type="text"
+                 placeholder="${f.placeholder}" value="${esc(savedVal)}">
+        </div>`;
+      } else if (f.type === 'free') {
+        return `
+        <div class="journal-field">
+          <div class="journal-field-label">${f.label}</div>
+          <textarea class="journal-free-thought" id="note-${f.id}" rows="${f.rows || 12}"
+                    placeholder="${f.placeholder}">${esc(savedVal)}</textarea>
+        </div>`;
+      } else {
+        return `
+        <div class="journal-field">
+          <div class="journal-field-label">${f.label}</div>
+          <textarea class="journal-lined" id="note-${f.id}" rows="${f.rows || 6}"
+                    placeholder="${f.placeholder}">${esc(savedVal)}</textarea>
+        </div>`;
+      }
+    }).join('')}`;
+  }
 
+  // Build reflection prompts
+  const promptsSection = `
+  <div class="journal-section-divider" style="margin-top:${nc ? '24px' : '0'}">
+    <span class="journal-section-divider-icon">💬</span>
+    <span class="journal-section-divider-label">Reflection</span>
+    <span class="journal-section-divider-line"></span>
+  </div>
+  ${r.prompts.map((p, i) => `
+  <div class="journal-q">
+    <div class="journal-q-label">${p}</div>
+    <textarea class="journal-textarea" id="jq${i}" rows="3"
+              placeholder="Write your reflection…">${esc(saved && saved.responses ? saved.responses[i]||'' : '')}</textarea>
+  </div>`).join('')}
+  ${state.apiKey ? `
+  <div>
+    <button class="btn btn-outline btn-sm" id="ai-btn" onclick="analyzeModal('${id}')">
+      🤖 Analyze with AI
+    </button>
+  </div>
+  <div id="ai-area"></div>` : ''}`;
+
+  document.getElementById('j-body').innerHTML = notesSection + promptsSection;
   document.getElementById('journal-overlay').classList.remove('hidden');
 }
 
@@ -1770,27 +2284,41 @@ function saveJournal() {
   const id = state.journalRoutineId;
   if (!id) return;
   const r         = routineById(id);
+  const nc        = NOTES_CONFIG[id];
   const responses = r.prompts.map((_,i) => {
     const el = document.getElementById(`jq${i}`);
     return el ? el.value.trim() : '';
   });
 
+  // Collect notes fields
+  const notes = {};
+  if (nc) {
+    nc.fields.forEach(f => {
+      const el = document.getElementById(`note-${f.id}`);
+      if (el) notes[f.id] = el.value.trim();
+    });
+  }
+
   const data = {
-    routineId: id,
-    routineTitle: r.title,
-    routineIcon:  r.icon,
-    routineColor: r.color,
-    dateKey: dateKey(),
-    completedAt: Date.now(),
-    prompts:   r.prompts,
+    routineId:     id,
+    routineTitle:  r.title,
+    routineIcon:   r.icon,
+    routineColor:  r.color,
+    dateKey:       dateKey(),
+    completedAt:   Date.now(),
+    prompts:       r.prompts,
     responses,
+    notes,
   };
   lsSet(`journal_${id}_${dateKey()}`, data);
 
   closeJournal();
   renderMain();
 
-  // Sync to Google Sheets (hardcoded URL takes priority; Setup field is fallback)
+  // Check milestones & send Telegram
+  setTimeout(() => checkMilestones(id), 400);
+
+  // Sync to Google Sheets
   const sheetsUrl = SHEETS_URL || lsRaw('mihwar_sheets_url');
   if (sheetsUrl) {
     toast('🔄 Syncing to Google Sheets…');
@@ -1799,15 +2327,15 @@ function saveJournal() {
       body: JSON.stringify(data),
     })
       .then(res => res.ok ? res.json() : Promise.reject(res.status))
-      .then(() => toast('✅ Reflection saved & synced to Sheets!'))
-      .catch(() => toast('📔 Saved locally — Sheets sync failed. Check URL in Setup.'));
+      .then(() => toast('✅ Entry saved & synced!'))
+      .catch(() => toast('📔 Saved locally — Sheets sync failed.'));
   } else {
-    toast('📔 Reflection saved locally!');
+    toast('📔 Entry saved!');
   }
 }
 
 /* ======================================================
-   AI
+   AI ANALYSIS
    ====================================================== */
 async function analyzeModal(id) {
   const r         = routineById(id);
@@ -1924,10 +2452,19 @@ function saveApiKey() {
   toast('✓ API key saved');
 }
 
-function saveSheetsUrl() {
-  const v = document.getElementById('sheets-url').value.trim();
-  lsSetRaw('mihwar_sheets_url', v);
-  toast('✓ Sheets URL saved');
+function saveTgConfig() {
+  const token  = document.getElementById('tg-token').value.trim();
+  const chatId = document.getElementById('tg-chatid').value.trim();
+  lsSetRaw('mihwar_tg_token',  token);
+  lsSetRaw('mihwar_tg_chatid', chatId);
+  toast('✓ Telegram config saved');
+  renderMain();
+}
+
+function testTelegram() {
+  sendTelegramAlert(
+    `✅ *Mihwar — Test Message*\n\nYour Telegram alerts are working!\n_بسم الله الرحمن الرحيم_`
+  ).then(() => toast('📤 Test message sent to Telegram!'));
 }
 
 function exportData() {
@@ -1940,14 +2477,14 @@ function exportData() {
 }
 
 function clearData() {
-  if (!confirm('Delete all reflection history? This cannot be undone.')) return;
+  if (!confirm('Delete all entry history? This cannot be undone.')) return;
   const del = [];
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (k && (k.startsWith('journal_') || k.startsWith('analysis_'))) del.push(k);
   }
   del.forEach(k => localStorage.removeItem(k));
-  toast('All reflection data cleared.');
+  toast('All data cleared.');
   renderMain();
 }
 
