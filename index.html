@@ -1100,15 +1100,9 @@
 'use strict';
 
 /* ======================================================
-   TELEGRAM CONFIG — Paste your credentials here
-   ====================================================== */
-const TELEGRAM_BOT_TOKEN = '8524326793:AAG1qA4lzgtBgbF_gj88pw9hik2An4-nRF8';
-const TELEGRAM_CHAT_ID   = '7955128312';
-
-/* ======================================================
    GOOGLE SHEETS WEBHOOK
    ====================================================== */
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxbg5LuPmNQtjtTBsCYcYI68pWerBC1j_Tf-Qqz3RbIH-B1SWY_2xoFDlOMmOrxuiNDjw/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzkl2eDpwln4hxuUOBpx8Jlh1YUeCyRXb4w_4WeV2hVXkJ9RbmAtZvOjdlfloMaAvSB/exec';
 
 const WD  = ['Mon','Tue','Wed','Thu','Fri'];
 const ALL  = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -1471,19 +1465,7 @@ function todayRoutines() {
   return routines;
 }
 
-/* ======================================================
-   TELEGRAM MILESTONE ALERTS
-   ====================================================== */
-async function sendTelegramAlert(msg) {
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
-  try {
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'Markdown' })
-    });
-  } catch(e) { console.warn('Telegram alert failed', e); }
-}
+
 
 function checkMilestones(savedRoutineId) {
   const r = routineById(savedRoutineId);
@@ -1494,22 +1476,13 @@ function checkMilestones(savedRoutineId) {
   const todayList = todayRoutines();
   const doneToday = todayList.filter(rt => isToday(rt.id)).length;
   if (doneToday === todayList.length && todayList.length > 0) {
-    const d = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
-    sendTelegramAlert(
-      `🌿 *Mihwar — All Done!*\n\nYou completed every routine for *${d}*. بارك الله فيك\n\n` +
-      `${todayList.map(rt => `${rt.icon} ${rt.title}`).join('\n')}\n\n_محور_`
-    );
-    toast('🎉 All routines complete! Telegram notified.');
+    toast('🎉 All routines complete for today!');
   }
 
   // 2. Streak milestones
   const streakMilestones = [3, 7, 14, 21, 30, 60, 100];
   if (streakMilestones.includes(streak)) {
-    sendTelegramAlert(
-      `🔥 *Mihwar — Streak Milestone!*\n\n` +
-      `You've maintained your practice for *${streak} days* in a row! SubhanAllah.\n\n` +
-      `_Keep going — consistency is the key to mastery._\n_محور_`
-    );
+    toast(`🔥 ${streak}-day streak! SubhanAllah — keep going.`);
   }
 
   // 3. Per-routine milestone (10th, 25th, 50th, 100th session)
@@ -1517,11 +1490,7 @@ function checkMilestones(savedRoutineId) {
   const count = routineEntries.length;
   const sessionMilestones = [10, 25, 50, 100, 200];
   if (sessionMilestones.includes(count)) {
-    sendTelegramAlert(
-      `⭐ *Mihwar — Routine Milestone!*\n\n` +
-      `${r.icon} *${r.title}* — session #${count} complete!\n\n` +
-      `${count} sessions of consistent practice. That's real dedication.\n_محور_`
-    );
+    toast(`⭐ ${r.icon} ${r.title} — session #${count}! Real dedication.`);
   }
 }
 
@@ -2303,7 +2272,7 @@ function saveJournal() {
   closeJournal();
   renderMain();
 
-  // Check milestones & send Telegram
+  // Check milestones
   setTimeout(() => checkMilestones(id), 400);
 
   // Save to GAS (and local cache)
