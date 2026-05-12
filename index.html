@@ -761,16 +761,73 @@
             background: var(--surface);
             border-left: 4px solid var(--card-color, var(--primary));
             border-radius: var(--r-md);
-            padding: 16px;
             margin-bottom: 10px;
             box-shadow: var(--shadow-sm);
+            overflow: hidden;
         }
         .history-entry-title {
             display: flex; align-items: center; gap: 8px;
             font-weight: 700; font-size: 14px; color: var(--primary);
-            margin-bottom: 10px;
+            padding: 14px 16px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
         }
-        .history-time { margin-left: auto; font-size: 11px; color: var(--text-muted); font-weight: 400; }
+        .history-entry-title:hover { background: var(--surface-2); }
+        .history-entry-chevron {
+            margin-left: auto;
+            font-size: 10px; color: var(--text-muted);
+            transition: transform 0.25s;
+            padding-left: 8px;
+        }
+        .history-entry.open .history-entry-chevron { transform: rotate(180deg); }
+        .history-entry-body {
+            display: none;
+            padding: 0 16px 16px;
+            border-top: 1px solid var(--border-light);
+        }
+        .history-entry.open .history-entry-body { display: block; }
+        .history-time { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+
+        /* Notebook card body */
+        .notebook-body {
+            background: repeating-linear-gradient(
+                var(--surface),
+                var(--surface) 27px,
+                rgba(26,58,42,0.06) 27px,
+                rgba(26,58,42,0.06) 28px
+            );
+            border-radius: var(--r-sm);
+            padding: 14px 16px;
+            margin-top: 10px;
+            border-left: 3px solid var(--gold-pale);
+        }
+        .nb-seg-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--border-light);
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .nb-seg-row:last-child { border-bottom: none; }
+        .nb-seg-row:hover { background: rgba(26,58,42,0.03); border-radius: 6px; }
+        .nb-tick {
+            width: 22px; height: 22px; flex-shrink: 0;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 13px; color: transparent;
+            transition: all 0.2s;
+            background: white;
+        }
+        .nb-seg-row.ticked .nb-tick {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+        .nb-seg-label { font-size: 13.5px; color: var(--text); font-family: var(--font-serif); flex: 1; }
+        .nb-seg-dur   { font-size: 11px; color: var(--text-muted); font-weight: 700; }
+        .nb-seg-row.ticked .nb-seg-label { text-decoration: line-through; color: var(--text-muted); }
 
         .history-qa      { margin-bottom: 9px; }
         .history-q-label { font-size: 10.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 2px; }
@@ -1634,6 +1691,8 @@ function renderCard(r) {
   const idx      = routines.findIndex(x => x.id === r.id);
   const isFirst  = idx === 0;
   const isLast   = idx === routines.length - 1;
+  const t        = getTimer(r.id);
+  const tickedCount = t ? t.doneParts.size : 0;
 
   return `
   <div class="routine-card ${isActive ? 'active-card' : ''} ${isDone ? 'done-card' : ''}"
@@ -1651,6 +1710,7 @@ function renderCard(r) {
         <div class="routine-card-meta">
           <span class="routine-seg-count">${r.segments.length} segment${r.segments.length>1?'s':''}</span>
           <span class="duration-pill">${totalDur(r)} min</span>
+          ${tickedCount > 0 && !isDone ? `<span class="duration-pill" style="background:rgba(64,145,108,0.15);color:var(--success)">${tickedCount}/${r.segments.length} done</span>` : ''}
         </div>
       </div>
       <div class="routine-card-right">
@@ -1659,7 +1719,7 @@ function renderCard(r) {
                 title="${isDone ? 'View / re-write entry' : 'Mark complete & journal'}">
           ${isDone?'✓':'○'}
         </button>
-        <span class="expand-chevron">▼</span>
+        <span class="expand-chevron" style="transition:transform 0.25s;transform:${isActive?'rotate(180deg)':'rotate(0)'}">▼</span>
       </div>
     </div>
     <div class="routine-body" id="body-${r.id}">
@@ -1674,19 +1734,16 @@ function renderBody(r) {
   const done    = isToday(r.id);
 
   return `
-  <div class="segments-list">
+  <!-- Notebook-style segment checklist -->
+  <div class="notebook-body">
+    <div style="font-size:10px;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Segments — tap to tick off</div>
     ${r.segments.map((seg,i) => {
       const segDone   = t.doneParts.has(i);
-      const segActive = !allDone && t.segIdx === i;
       return `
-      <div class="segment-item ${segDone?'seg-done':''} ${segActive?'seg-active':''}">
-        <div class="seg-num">${segDone?'✓':i+1}</div>
-        <div class="seg-info">
-          <div class="seg-label">${seg.label}</div>
-          <div class="seg-dur">${seg.dur} minutes</div>
-        </div>
-        ${segActive ? '<span class="tag tag-active">Active</span>' : ''}
-        ${segDone   ? '<span class="tag tag-green">Done</span>'   : ''}
+      <div class="nb-seg-row ${segDone?'ticked':''}" onclick="nbTickSeg('${r.id}',${i})">
+        <div class="nb-tick">✓</div>
+        <div class="nb-seg-label">${seg.label}</div>
+        <div class="nb-seg-dur">${seg.dur}m</div>
       </div>`;
     }).join('')}
   </div>
@@ -1696,20 +1753,66 @@ function renderBody(r) {
   ${allDone && !done ? `
     <div class="complete-state">
       <div class="complete-emoji">🎉</div>
-      <div class="complete-msg">All segments complete!</div>
-      <button class="btn btn-primary btn-lg" onclick="openJournal('${r.id}')">📔 Write Entry</button>
+      <div class="complete-msg">All segments ticked off!</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:4px">
+        <button class="btn btn-outline btn-sm" onclick="quickComplete('${r.id}')">✓ Mark Done (no journal)</button>
+        <button class="btn btn-primary btn-lg" onclick="openJournal('${r.id}')">📔 Mark Done &amp; Write Entry</button>
+      </div>
     </div>` : ''}
 
   ${done ? `
-    <div style="text-align:center;padding:16px 0">
+    <div style="text-align:center;padding:16px 0;display:flex;flex-direction:column;align-items:center;gap:10px">
       <span class="tag tag-green" style="font-size:13px;padding:6px 18px">✓ Complete &amp; Journaled</span>
+      <button class="btn btn-ghost btn-sm" onclick="openJournal('${r.id}')">✏️ Edit Entry</button>
     </div>` : ''}
 
   ${!allDone ? `
     <div class="action-row">
       <button class="btn btn-outline btn-sm" onclick="skipSeg('${r.id}')">Skip →</button>
-      <button class="btn btn-success btn-sm" onclick="openJournal('${r.id}')">Mark Complete &amp; Journal</button>
+      <button class="btn btn-ghost btn-sm" onclick="quickComplete('${r.id}')">✓ Done (no journal)</button>
+      <button class="btn btn-success btn-sm" onclick="openJournal('${r.id}')">📔 Done &amp; Journal</button>
     </div>` : ''}`;
+}
+
+function nbTickSeg(id, idx) {
+  const t = getTimer(id);
+  if (t.doneParts.has(idx)) {
+    t.doneParts.delete(idx);
+  } else {
+    t.doneParts.add(idx);
+    if (t.segIdx === idx) {
+      clearInterval(intervals[id]);
+      t.running = false;
+      const r = routineById(id);
+      if (idx < r.segments.length - 1) { t.segIdx = idx + 1; t.secs = r.segments[idx+1].dur * 60; }
+    }
+  }
+  refreshBody(id);
+  // Refresh card header too for progress pill
+  const routines = todayRoutines();
+  document.getElementById('routines-list').innerHTML = routines.map(r => renderCard(r)).join('');
+  // Re-open the active card body since innerHTML was replaced
+  const el = document.getElementById('body-' + id);
+  if (el) el.innerHTML = renderBody(routineById(id));
+}
+
+function quickComplete(id) {
+  // Mark complete without journal — saves a minimal entry
+  const r = ROUTINES.find(x => x.id === id);
+  if (!r) return;
+  const dk  = dateKey();
+  const key = 'journal_' + id + '_' + dk;
+  const entry = {
+    routineId: id, routineTitle: r.title, routineIcon: r.icon, routineColor: r.color,
+    dateKey: dk, completedAt: Date.now(),
+    prompts: [], responses: [], notes: {}, quickComplete: true
+  };
+  gasCache[key] = entry;
+  localStorage.setItem(key, JSON.stringify(entry));
+  saveToGAS(key, entry);
+  toast('✓ ' + r.title + ' marked complete');
+  const routines = todayRoutines();
+  document.getElementById('routines-list').innerHTML = routines.map(r => renderCard(r)).join('');
 }
 
 function renderTimerInner(r, t) {
@@ -1768,7 +1871,28 @@ function toggleCard(id) {
   document.getElementById('routines-list').innerHTML = routines.map(r => renderCard(r)).join('');
 }
 
-function handleCheckClick(id) { openJournal(id); }
+function handleCheckClick(id) {
+  const isDone = isToday(id);
+  if (isDone) {
+    // Already done — open journal to read/edit
+    openJournal(id);
+  } else {
+    // Not done — expand the card so user can interact
+    if (state.activeRoutineId !== id) {
+      if (state.activeRoutineId) pauseTimer(state.activeRoutineId);
+      state.activeRoutineId = id;
+      const routines = todayRoutines();
+      document.getElementById('routines-list').innerHTML = routines.map(r => renderCard(r)).join('');
+      // Scroll to card
+      setTimeout(() => {
+        const el = document.getElementById('card-' + id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    } else {
+      openJournal(id);
+    }
+  }
+}
 
 function moveRoutineUp(id, e) {
   e.stopPropagation();
@@ -1921,6 +2045,7 @@ function renderHistory() {
 
 function histEntry(e) {
   const nc = NOTES_CONFIG[e.routineId];
+  const uid = 'he_' + e.key.replace(/[^a-z0-9]/gi,'_');
 
   // Build notes display
   let notesHtml = '';
@@ -1939,20 +2064,30 @@ function histEntry(e) {
     }
   }
 
-  return `
-  <div class="history-entry" style="--card-color:${e.routineColor||'#1a3a2a'}">
-    <div class="history-entry-title">
-      <span>${e.routineIcon}</span>
-      <span>${e.routineTitle}</span>
-      <span class="history-time">${fmtClock(e.completedAt)}</span>
-    </div>
-    ${notesHtml}
-    ${(e.prompts||[]).map((p,i) => e.responses && e.responses[i] ? `
+  const qaHtml = (e.prompts||[]).map((p,i) => e.responses && e.responses[i] ? `
     <div class="history-qa">
       <div class="history-q-label">${p}</div>
       <div class="history-a-text">${esc(e.responses[i])}</div>
-    </div>` : '').join('')}
+    </div>` : '').join('');
+
+  const hasBody = notesHtml || qaHtml;
+
+  return `
+  <div class="history-entry" id="${uid}" style="--card-color:${e.routineColor||'#1a3a2a'}">
+    <div class="history-entry-title" onclick="toggleHistEntry('${uid}')">
+      <span>${e.routineIcon}</span>
+      <span>${e.routineTitle}</span>
+      <span class="history-time">${fmtClock(e.completedAt)}</span>
+      ${hasBody ? '<span class="history-entry-chevron">▼</span>' : ''}
+    </div>
+    ${hasBody ? `<div class="history-entry-body">${notesHtml}${qaHtml}</div>` : ''}
   </div>`;
+}
+
+function toggleHistEntry(uid) {
+  const el = document.getElementById(uid);
+  if (!el) return;
+  el.classList.toggle('open');
 }
 
 function calcStreak(entries) {
