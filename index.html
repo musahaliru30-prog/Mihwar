@@ -1554,10 +1554,55 @@ function checkMilestones(savedRoutineId) {
 /* ======================================================
    TIMER
    ====================================================== */
+/* ── TIMER PERSISTENCE ─────────────────────────────────
+   Timers are saved to localStorage with a real clock
+   timestamp so they survive navigation, refresh, and
+   closing/reopening the file.
+   ─────────────────────────────────────────────────── */
+function timerStorageKey(id) { return 'timer_state_' + id; }
+
+function saveTimerState(id) {
+  const t = state.timers[id];
+  if (!t) return;
+  localStorage.setItem(timerStorageKey(id), JSON.stringify({
+    segIdx:    t.segIdx,
+    secs:      t.secs,
+    running:   t.running,
+    startedAt: t.running ? Date.now() : null,
+    doneParts: [...t.doneParts],
+  }));
+}
+
+function loadTimerState(id) {
+  const raw = localStorage.getItem(timerStorageKey(id));
+  if (!raw) return null;
+  try {
+    const saved = JSON.parse(raw);
+    const doneParts = new Set(saved.doneParts || []);
+    let secs = saved.secs;
+    // If it was running when saved, calculate real elapsed time
+    if (saved.running && saved.startedAt) {
+      const elapsed = Math.floor((Date.now() - saved.startedAt) / 1000);
+      secs = Math.max(0, secs - elapsed);
+    }
+    return { segIdx: saved.segIdx || 0, secs, running: false, doneParts };
+  } catch { return null; }
+}
+
+function clearTimerState(id) {
+  localStorage.removeItem(timerStorageKey(id));
+}
+
 function getTimer(id) {
   if (!state.timers[id]) {
-    const r = routineById(id);
-    state.timers[id] = { segIdx:0, secs: r.segments[0].dur * 60, running:false, doneParts: new Set() };
+    // Try to restore from localStorage first
+    const saved = loadTimerState(id);
+    if (saved) {
+      state.timers[id] = saved;
+    } else {
+      const r = routineById(id);
+      state.timers[id] = { segIdx:0, secs: r.segments[0].dur * 60, running:false, doneParts: new Set() };
+    }
   }
   return state.timers[id];
 }
@@ -1566,6 +1611,7 @@ function startTimer(id) {
   const t = getTimer(id);
   if (t.running) return;
   t.running = true;
+  saveTimerState(id); // Save with startedAt timestamp
   intervals[id] = setInterval(() => {
     const tm = state.timers[id];
     if (!tm || !tm.running) { clearInterval(intervals[id]); return; }
@@ -1573,8 +1619,10 @@ function startTimer(id) {
     if (tm.secs <= 0) {
       tm.secs = 0; tm.running = false;
       clearInterval(intervals[id]);
+      clearTimerState(id);
       autoAdvance(id);
     } else {
+      if (tm.secs % 10 === 0) saveTimerState(id); // Save every 10s
       patchTimerBlock(id);
     }
   }, 1000);
@@ -1585,6 +1633,7 @@ function pauseTimer(id) {
   const t = getTimer(id);
   t.running = false;
   clearInterval(intervals[id]);
+  saveTimerState(id); // Save paused position
   patchTimerBlock(id);
 }
 
@@ -1594,6 +1643,7 @@ function resetTimer(id) {
   clearInterval(intervals[id]);
   const r = routineById(id);
   t.secs = r.segments[t.segIdx].dur * 60;
+  saveTimerState(id);
   patchTimerBlock(id);
 }
 
@@ -1633,8 +1683,12 @@ function fmtTime(secs) {
 function navigate(view) {
   state.view = view;
   if (view !== 'today') {
-    Object.keys(intervals).forEach(id => { clearInterval(intervals[id]); });
-    Object.values(state.timers).forEach(t => t.running = false);
+    // Save timer positions before leaving — do NOT reset them
+    Object.keys(intervals).forEach(id => {
+      saveTimerState(id);        // persist current secs + startedAt
+      clearInterval(intervals[id]);
+      if (state.timers[id]) state.timers[id].running = false;
+    });
   }
   document.querySelectorAll('.nav-tab').forEach(btn =>
     btn.classList.toggle('active', btn.dataset.view === view)
@@ -1810,6 +1864,10 @@ function quickComplete(id) {
   gasCache[key] = entry;
   localStorage.setItem(key, JSON.stringify(entry));
   saveToGAS(key, entry);
+  // Clear timer — this routine is finished
+  clearTimerState(id);
+  delete state.timers[id];
+  clearInterval(intervals[id]);
   toast('✓ ' + r.title + ' marked complete');
   const routines = todayRoutines();
   document.getElementById('routines-list').innerHTML = routines.map(r => renderCard(r)).join('');
@@ -2403,6 +2461,11 @@ function saveJournal() {
   };
 
   const key = `journal_${id}_${dateKey()}`;
+
+  // Clear the timer state for this routine — it's done
+  clearTimerState(id);
+  delete state.timers[id];
+  clearInterval(intervals[id]);
 
   closeJournal();
   renderMain();
