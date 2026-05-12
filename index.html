@@ -691,34 +691,15 @@
         .journal-textarea:focus { border-color: var(--primary-mid); background: var(--white); }
 
         /* =====================================================
-           AI ANALYSIS
+           SYNC STATUS
            ===================================================== */
-        .ai-block {
-            margin-top: 18px;
-            background: var(--primary);
-            border-radius: var(--r-lg);
-            padding: 20px;
-            color: white;
-        }
-        .ai-block-header {
-            font-size: 10.5px; font-weight: 900; letter-spacing: 0.12em;
-            text-transform: uppercase; color: var(--gold-bright);
-            margin-bottom: 10px;
-        }
-        .ai-block-text {
-            font-size: 14px; line-height: 1.75;
-            color: rgba(255,255,255,0.86);
-            font-family: var(--font-serif);
-            font-style: italic;
-        }
-        .ai-loading { display: flex; align-items: center; gap: 9px; color: rgba(255,255,255,0.55); font-size: 13px; }
-
         .spinner {
             width: 16px; height: 16px;
             border: 2px solid rgba(255,255,255,0.18);
             border-top-color: var(--gold-bright);
             border-radius: 50%;
             animation: spin 0.75s linear infinite;
+            display: inline-block;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -1121,8 +1102,8 @@
 /* ======================================================
    TELEGRAM CONFIG — Paste your credentials here
    ====================================================== */
-const TELEGRAM_BOT_TOKEN = ''; // e.g. '123456789:AAFxxxxxxx'
-const TELEGRAM_CHAT_ID   = ''; // e.g. '987654321'
+const TELEGRAM_BOT_TOKEN = '8524326793:AAG1qA4lzgtBgbF_gj88pw9hik2An4-nRF8';
+const TELEGRAM_CHAT_ID   = '7955128312';
 
 /* ======================================================
    GOOGLE SHEETS WEBHOOK
@@ -1383,9 +1364,82 @@ const state = {
   activeRoutineId: null,
   timers: {},
   journalRoutineId: null,
-  apiKey: localStorage.getItem('mihwar_api_key') || '',
 };
 const intervals = {};
+
+/* ======================================================
+   GAS-BACKED STORAGE
+   Journal entries are stored in Google Apps Script.
+   Settings/preferences remain in localStorage.
+   gasCache mirrors remote data in memory for fast reads.
+   ====================================================== */
+const gasCache = {}; // { 'journal_id_dateKey': {...entry} }
+
+async function gasRequest(payload) {
+  const res = await fetch(SHEETS_URL, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(`GAS error ${res.status}`);
+  return res.json();
+}
+
+async function gasSave(key, data) {
+  gasCache[key] = data;
+  localStorage.setItem(key, JSON.stringify(data)); // local cache
+  return gasRequest({ action: 'save', key, data });
+}
+
+async function gasDelete(key) {
+  delete gasCache[key];
+  localStorage.removeItem(key);
+  return gasRequest({ action: 'delete', key });
+}
+
+async function gasClearAll() {
+  Object.keys(gasCache).forEach(k => { delete gasCache[k]; localStorage.removeItem(k); });
+  return gasRequest({ action: 'clear' });
+}
+
+function gasGet(key) {
+  return gasCache[key] || null;
+}
+
+async function gasLoadAll() {
+  // Try GAS first; fall back to localStorage cache on failure
+  try {
+    const result = await fetch(SHEETS_URL + '?action=getAll');
+    if (!result.ok) throw new Error('fetch failed');
+    const json = await result.json();
+    if (json && json.entries) {
+      // Clear old cache and repopulate from GAS
+      Object.keys(gasCache).forEach(k => delete gasCache[k]);
+      json.entries.forEach(({ key, data }) => {
+        if (key && data) {
+          gasCache[key] = data;
+          localStorage.setItem(key, JSON.stringify(data));
+        }
+      });
+      return true;
+    }
+  } catch (e) {
+    console.warn('GAS load failed, using localStorage cache:', e);
+    // Rebuild gasCache from localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('journal_')) {
+        try { gasCache[k] = JSON.parse(localStorage.getItem(k)); } catch {}
+      }
+    }
+  }
+  return false;
+}
+
+/* Settings helpers (stay in localStorage) */
+function lsGet(k)      { try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; } }
+function lsSet(k, v)   { localStorage.setItem(k, JSON.stringify(v)); }
+function lsRaw(k)      { return localStorage.getItem(k); }
+function lsSetRaw(k,v) { localStorage.setItem(k, v); }
 
 /* ======================================================
    HELPERS
@@ -1399,7 +1453,7 @@ function dateKey() {
 function routineById(id) { return ROUTINES.find(r => r.id === id); }
 function totalDur(r)      { return r.segments.reduce((s, sg) => s + sg.dur, 0); }
 function isToday(routineId) {
-  return !!lsGet(`journal_${routineId}_${dateKey()}`);
+  return !!gasGet(`journal_${routineId}_${dateKey()}`);
 }
 function todayRoutines() {
   const t = todayName();
@@ -1416,23 +1470,17 @@ function todayRoutines() {
   }
   return routines;
 }
-function lsGet(k)      { try { return JSON.parse(localStorage.getItem(k)); } catch(e) { return null; } }
-function lsSet(k, v)   { localStorage.setItem(k, JSON.stringify(v)); }
-function lsRaw(k)      { return localStorage.getItem(k); }
-function lsSetRaw(k,v) { localStorage.setItem(k, v); }
 
 /* ======================================================
    TELEGRAM MILESTONE ALERTS
    ====================================================== */
 async function sendTelegramAlert(msg) {
-  const token  = TELEGRAM_BOT_TOKEN || lsRaw('mihwar_tg_token');
-  const chatId = TELEGRAM_CHAT_ID   || lsRaw('mihwar_tg_chatid');
-  if (!token || !chatId) return;
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
   try {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text: msg, parse_mode: 'Markdown' })
+      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'Markdown' })
     });
   } catch(e) { console.warn('Telegram alert failed', e); }
 }
@@ -1852,13 +1900,9 @@ function ovCard(r, today) {
    ====================================================== */
 function allEntries() {
   const out = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k && k.startsWith('journal_')) {
-      const v = lsGet(k);
-      if (v) out.push({ key: k, ...v });
-    }
-  }
+  Object.entries(gasCache).forEach(([k, v]) => {
+    if (k.startsWith('journal_') && v) out.push({ key: k, ...v });
+  });
   return out.sort((a,b) => b.completedAt - a.completedAt);
 }
 
@@ -1907,10 +1951,7 @@ function renderHistory() {
 }
 
 function histEntry(e) {
-  const analysisKey = `analysis_${e.key}`;
-  const analysis    = lsRaw(analysisKey);
-  const hasKey      = !!state.apiKey;
-  const nc          = NOTES_CONFIG[e.routineId];
+  const nc = NOTES_CONFIG[e.routineId];
 
   // Build notes display
   let notesHtml = '';
@@ -1942,20 +1983,6 @@ function histEntry(e) {
       <div class="history-q-label">${p}</div>
       <div class="history-a-text">${esc(e.responses[i])}</div>
     </div>` : '').join('')}
-
-    ${analysis ? `
-    <div class="ai-block" style="margin-top:12px">
-      <div class="ai-block-header">✦ Claude's Reflection</div>
-      <div class="ai-block-text">${esc(analysis)}</div>
-    </div>` : ''}
-
-    ${!analysis && hasKey ? `
-    <div style="margin-top:10px">
-      <button class="btn btn-outline btn-sm"
-              onclick="analyzeEntry('${e.key}','${e.routineId}',this)">
-        🤖 Analyze with AI
-      </button>
-    </div>` : ''}
   </div>`;
 }
 
@@ -1997,11 +2024,6 @@ function renderAnalytics() {
 
   // Heatmap — last 63 days (9 weeks)
   const heatmap = buildHeatmap(entries);
-
-  // Telegram config
-  const tgToken  = lsRaw('mihwar_tg_token')  || '';
-  const tgChatId = lsRaw('mihwar_tg_chatid') || '';
-  const apiKey   = state.apiKey || '';
 
   return `
   <div class="view-header">
@@ -2113,40 +2135,12 @@ function renderAnalytics() {
   <div class="section-label" style="margin-top:8px">Settings & Integrations</div>
 
   <div class="settings-card">
-    <div class="settings-card-title">📱 Telegram Milestone Alerts</div>
-    <div class="settings-card-desc">Receive a Telegram message when you complete all daily routines, hit streak milestones (3, 7, 14, 30 days), or reach session milestones (10th, 25th, 50th session for a routine).</div>
-    <div style="margin-bottom:10px">
-      <div style="font-size:11.5px;font-weight:700;color:var(--text-muted);margin-bottom:5px">Bot Token</div>
-      <div class="input-row">
-        <input type="password" class="text-input" id="tg-token"
-               placeholder="123456789:AAFxxxxxxxxxxxxxxxx"
-               value="${esc(tgToken)}"/>
-        <button class="btn btn-primary" onclick="saveTgConfig()">Save</button>
-      </div>
+    <div class="settings-card-title">☁️ Cloud Sync</div>
+    <div class="settings-card-desc">Your data is synced to Google Apps Script and loaded fresh on every visit — so your history is available on any phone or device.</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="forceSyncFromGAS()">🔄 Refresh from Cloud</button>
     </div>
-    <div>
-      <div style="font-size:11.5px;font-weight:700;color:var(--text-muted);margin-bottom:5px">Your Chat ID</div>
-      <input type="text" class="text-input" id="tg-chatid"
-             placeholder="987654321"
-             value="${esc(tgChatId)}" style="width:100%"/>
-    </div>
-    <div style="margin-top:12px;font-size:12px;color:var(--text-muted)">
-      To get your Chat ID: message your bot, then visit <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> and look for the <code>chat.id</code> field.
-    </div>
-    ${(tgToken && tgChatId) ? `
-    <div style="margin-top:10px">
-      <button class="btn btn-outline btn-sm" onclick="testTelegram()">📤 Send Test Message</button>
-    </div>` : ''}
-  </div>
-
-  <div class="settings-card">
-    <div class="settings-card-title">🤖 Claude AI Reflection Analysis</div>
-    <div class="settings-card-desc">Add your Anthropic API key to unlock AI-powered insights after completing each routine. Stored only in your browser.</div>
-    <div class="input-row">
-      <input type="password" class="text-input" id="api-key-input"
-             placeholder="sk-ant-api03-..." value="${esc(state.apiKey)}"/>
-      <button class="btn btn-primary" onclick="saveApiKey()">Save Key</button>
-    </div>
+    <div style="margin-top:10px;font-size:12px;color:var(--text-muted)">Connected to: <code style="font-size:11px;word-break:break-all">${esc(SHEETS_URL.slice(0,60))}…</code></div>
   </div>
 
   <div class="settings-card">
@@ -2205,7 +2199,7 @@ function buildHeatmap(entries) {
 function openJournal(id) {
   state.journalRoutineId = id;
   const r     = routineById(id);
-  const saved = lsGet(`journal_${id}_${dateKey()}`);
+  const saved = gasGet(`journal_${id}_${dateKey()}`);
   const nc    = NOTES_CONFIG[id];
   const now   = new Date();
 
@@ -2262,14 +2256,7 @@ function openJournal(id) {
     <div class="journal-q-label">${p}</div>
     <textarea class="journal-textarea" id="jq${i}" rows="3"
               placeholder="Write your reflection…">${esc(saved && saved.responses ? saved.responses[i]||'' : '')}</textarea>
-  </div>`).join('')}
-  ${state.apiKey ? `
-  <div>
-    <button class="btn btn-outline btn-sm" id="ai-btn" onclick="analyzeModal('${id}')">
-      🤖 Analyze with AI
-    </button>
-  </div>
-  <div id="ai-area"></div>` : ''}`;
+  </div>`).join('')}`;
 
   document.getElementById('j-body').innerHTML = notesSection + promptsSection;
   document.getElementById('journal-overlay').classList.remove('hidden');
@@ -2310,7 +2297,8 @@ function saveJournal() {
     responses,
     notes,
   };
-  lsSet(`journal_${id}_${dateKey()}`, data);
+
+  const key = `journal_${id}_${dateKey()}`;
 
   closeJournal();
   renderMain();
@@ -2318,101 +2306,13 @@ function saveJournal() {
   // Check milestones & send Telegram
   setTimeout(() => checkMilestones(id), 400);
 
-  // Sync to Google Sheets
-  const sheetsUrl = SHEETS_URL || lsRaw('mihwar_sheets_url');
-  if (sheetsUrl) {
-    toast('🔄 Syncing to Google Sheets…');
-    fetch(sheetsUrl, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-      .then(res => res.ok ? res.json() : Promise.reject(res.status))
-      .then(() => toast('✅ Entry saved & synced!'))
-      .catch(() => toast('📔 Saved locally — Sheets sync failed.'));
-  } else {
-    toast('📔 Entry saved!');
-  }
-}
-
-/* ======================================================
-   AI ANALYSIS
-   ====================================================== */
-async function analyzeModal(id) {
-  const r         = routineById(id);
-  const responses = r.prompts.map((_,i) => {
-    const el = document.getElementById(`jq${i}`);
-    return el ? el.value.trim() : '';
-  });
-  if (responses.every(s => !s)) { toast('Write your reflections first!'); return; }
-
-  const combined = r.prompts.map((p,i) => `Q: ${p}\nA: ${responses[i]||'(not answered)'}`).join('\n\n');
-  const btn  = document.getElementById('ai-btn');
-  const area = document.getElementById('ai-area');
-  if (btn) btn.disabled = true;
-  area.innerHTML = `<div class="ai-block" style="margin-top:14px"><div class="ai-loading"><div class="spinner"></div>Claude is reflecting…</div></div>`;
-
-  try {
-    const result = await claudeAPI(r, combined);
-    area.innerHTML = `<div class="ai-block" style="margin-top:14px"><div class="ai-block-header">✦ Claude's Reflection</div><div class="ai-block-text">${esc(result)}</div></div>`;
-    lsSetRaw(`analysis_journal_${id}_${dateKey()}`, result);
-  } catch(err) {
-    area.innerHTML = `<div style="color:var(--error);font-size:13px;margin-top:10px">Error: ${esc(err.message)}</div>`;
-  }
-  if (btn) btn.disabled = false;
-}
-
-async function analyzeEntry(journalKey, routineId, btn) {
-  const entry = lsGet(journalKey);
-  if (!entry) return;
-  const r       = routineById(routineId);
-  const combined = (entry.prompts||[]).map((p,i) => `Q: ${p}\nA: ${(entry.responses||[])[i]||''}`).join('\n\n');
-  btn.disabled    = true;
-  btn.textContent = '⏳ Analyzing…';
-  try {
-    const result = await claudeAPI(r, combined);
-    lsSetRaw(`analysis_${journalKey}`, result);
-    toast('✓ Analysis saved!');
-    renderMain();
-  } catch(err) {
-    toast('Error: ' + err.message);
-    btn.disabled    = false;
-    btn.textContent = '🤖 Analyze with AI';
-  }
-}
-
-async function claudeAPI(r, journalText) {
-  const prompt = `You are a thoughtful personal growth coach with knowledge of Islamic scholarship and practice.
-
-The user has just completed their "${r.title}" routine and written these reflections:
-
-${journalText}
-
-Please provide a warm, specific reflection (3–5 sentences) that:
-1. Acknowledges what they observed or accomplished
-2. Offers a deeper insight or connection they may not have considered
-3. Ends with a gentle, practical suggestion or question for tomorrow
-
-Be warm, specific to their writing, and encouraging. Speak directly to them.`;
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': state.apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 320,
-      messages: [{ role:'user', content: prompt }],
-    })
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(()=>({}));
-    throw new Error(err.error?.message || `API error ${res.status}`);
-  }
-  const data = await res.json();
-  return data.content[0].text;
+  // Save to GAS (and local cache)
+  toast('🔄 Saving entry…');
+  gasSave(key, data)
+    .then(() => toast('✅ Entry saved & synced!'))
+    .catch(() => {
+      toast('📔 Saved locally — cloud sync failed. Will retry on next save.');
+    });
 }
 
 /* ======================================================
@@ -2445,26 +2345,15 @@ function fmtClock(ts) {
   return new Date(ts).toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' });
 }
 
-function saveApiKey() {
-  const v = document.getElementById('api-key-input').value.trim();
-  state.apiKey = v;
-  localStorage.setItem('mihwar_api_key', v);
-  toast('✓ API key saved');
-}
-
-function saveTgConfig() {
-  const token  = document.getElementById('tg-token').value.trim();
-  const chatId = document.getElementById('tg-chatid').value.trim();
-  lsSetRaw('mihwar_tg_token',  token);
-  lsSetRaw('mihwar_tg_chatid', chatId);
-  toast('✓ Telegram config saved');
-  renderMain();
-}
-
-function testTelegram() {
-  sendTelegramAlert(
-    `✅ *Mihwar — Test Message*\n\nYour Telegram alerts are working!\n_بسم الله الرحمن الرحيم_`
-  ).then(() => toast('📤 Test message sent to Telegram!'));
+async function forceSyncFromGAS() {
+  toast('🔄 Syncing from cloud…');
+  const ok = await gasLoadAll();
+  if (ok) {
+    toast('✅ Data refreshed from cloud!');
+    renderMain();
+  } else {
+    toast('⚠️ Sync failed — check your connection.');
+  }
 }
 
 function exportData() {
@@ -2477,25 +2366,34 @@ function exportData() {
 }
 
 function clearData() {
-  if (!confirm('Delete all entry history? This cannot be undone.')) return;
-  const del = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k && (k.startsWith('journal_') || k.startsWith('analysis_'))) del.push(k);
-  }
-  del.forEach(k => localStorage.removeItem(k));
-  toast('All data cleared.');
-  renderMain();
+  if (!confirm('Delete all entry history from the cloud? This cannot be undone.')) return;
+  toast('🔄 Clearing all data…');
+  gasClearAll()
+    .then(() => { toast('All data cleared.'); renderMain(); })
+    .catch(() => { toast('⚠️ Clear failed — try again.'); });
 }
 
 /* ======================================================
    INIT
    ====================================================== */
-(function init() {
+(async function init() {
   const now = new Date();
   document.getElementById('hdr-date').textContent =
     now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
   document.getElementById('hdr-day').textContent = todayName();
+
+  // Show loading state
+  document.getElementById('main').innerHTML = `
+    <div style="text-align:center;padding:64px 20px;color:var(--text-muted)">
+      <div class="spinner" style="border-top-color:var(--primary-mid);border-color:var(--border);margin:0 auto 16px"></div>
+      <div style="font-family:var(--font-serif);font-size:17px;color:var(--primary);margin-bottom:6px">Loading your data…</div>
+      <div style="font-size:13px">Syncing from the cloud</div>
+    </div>`;
+
+  const synced = await gasLoadAll();
+  if (!synced) {
+    toast('⚠️ Cloud sync failed — showing locally cached data');
+  }
   renderMain();
 })();
 </script>
